@@ -1,2 +1,2 @@
-# hotkey-manager
-A easy-to-use manager to remap the buttons of any input device to keyboard shortcuts
+# interception-keymapper
+A keyboard remapping tool, for easier keyboard macro use and key remapping
