@@ -1,0 +1,31 @@
+﻿<controls:MetroWindow 
+        x:Class="InterceptionKeymapper.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:system="clr-namespace:System;assembly=mscorlib"
+        xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:views="clr-namespace:InterceptionKeymapper.Views"
+        xmlns:viewmodel="clr-namespace:InterceptionKeymapper.ViewModel"
+        Title="Interception Keymapper" Height="900" Width="1600"
+		ResizeMode="CanMinimize">
+
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type viewmodel:ApplicationObservableModel}">
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodel:ListViewViewModel}">
+            <views:ListView />
+        </DataTemplate>
+    </Window.Resources>
+
+
+	<Grid>
+		<ContentControl x:Name="MainContentControl" Content="{Binding CurrentViewModel}" />
+		<!--<views:LobbyUserControl/>-->
+
+
+
+    </Grid>
+
+</controls:MetroWindow>
