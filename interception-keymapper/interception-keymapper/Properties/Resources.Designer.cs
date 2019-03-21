@@ -59,5 +59,25 @@ namespace InterceptionKeymapper.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] interception {
+            get {
+                object obj = ResourceManager.GetObject("interception", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] wrapper {
+            get {
+                object obj = ResourceManager.GetObject("wrapper", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
     }
 }

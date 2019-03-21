@@ -20,6 +20,8 @@ namespace InterceptionKeymapper.ViewModel
 		public ObservableCollection<Shortcut> Shortcuts { get { return _shortcuts; } }
 		public ObservableCollection<Device> Devices { get { return _devices; } }
 
+		
+
 		public ListViewViewModel()
 		{
 			taskFactory = new TaskFactory(TaskScheduler.FromCurrentSynchronizationContext());
@@ -29,7 +31,7 @@ namespace InterceptionKeymapper.ViewModel
 			NewDeviceHwid = "Get Device";
 		}
 
-		#region Variables
+		#region Binding Variables
 		private Device _shortcutDevice;
 		public Device ShortcutDevice
 		{
@@ -108,6 +110,9 @@ namespace InterceptionKeymapper.ViewModel
 				Console.WriteLine(value);
 			}
 		}
+
+		private Device _editDevice;
+		private Shortcut _editShortcut;
 		#endregion
 
 		#region Methods
@@ -219,14 +224,15 @@ namespace InterceptionKeymapper.ViewModel
 				{
 					_editShortcutFlyoutCommand = new ActionCommand(e =>
 					{
-						Shortcuts.Remove(SelectedShortcut);
-						ShortcutManager.Instance.AddShortcut(ShortcutDevice);
+						Shortcuts.Remove(_editShortcut);
+						ShortcutManager.Instance.Shortcuts[ShortcutManager.Instance.Shortcuts.IndexOf(_editShortcut)] 
+						= new Shortcut(ShortcutDevice, ShortcutDummy.Instance.Key, ShortcutDummy.Instance.Target);
 					});
 				}
 				return _editShortcutFlyoutCommand;
 			}
 		}
-
+		
 		private ICommand _clearShortcutKey;
 		public ICommand ClearShortcutKey
 		{
@@ -260,6 +266,49 @@ namespace InterceptionKeymapper.ViewModel
 			}
 		}
 
+		private ICommand _editDeviceCommand;
+		public ICommand EditDeviceCommand
+		{
+			get
+			{
+				if (_editDeviceCommand == null)
+					_editDeviceCommand = new ActionCommand(e =>
+					{
+						NewDeviceName = SelectedDevice.Name;
+						NewDeviceHwid = SelectedDevice.Hwid;
+						_editDevice = SelectedDevice;
+					});
+				return _editDeviceCommand;
+			}
+		}
+
+		private ICommand _removeDeviceCommand;
+		public ICommand RemoveDeviceCommand
+		{
+			get
+			{
+				if (_removeDeviceCommand == null)
+					_removeDeviceCommand = new ActionCommand(e =>
+					{
+						DeviceManager.Instance.Devices.Remove(SelectedDevice);
+					});
+				return _removeDeviceCommand;
+			}
+		}
+
+		private ICommand _editDeviceFlyoutCommand;
+		public ICommand EditDeviceFlyoutCommand
+		{
+			get
+			{
+				if (_editDeviceFlyoutCommand == null)
+					_editDeviceFlyoutCommand = new ActionCommand(e =>
+					{
+						DeviceManager.Instance.Devices[DeviceManager.Instance.Devices.IndexOf(_editDevice)] = new Device(NewDeviceHwid, NewDeviceName);
+					});
+				return _editDeviceFlyoutCommand;
+			}
+		}
 		#endregion
 
 		#region Event Handlers
@@ -304,7 +353,7 @@ namespace InterceptionKeymapper.ViewModel
 						}
 						break;
 					case NotifyCollectionChangedAction.Remove:
-						foreach (Device item in e.NewItems)
+						foreach (Device item in e.OldItems)
 						{
 							Devices.Remove(item);
 						}

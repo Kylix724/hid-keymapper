@@ -16,10 +16,9 @@ namespace InterceptionKeymapper
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-
             MainWindow MainWindow = new MainWindow();
             MainWindow.DataContext = new ViewModel.ApplicationObservableModel();
             MainWindow.Show();
         }
-    }
+	}
 }

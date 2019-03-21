@@ -47,10 +47,17 @@ namespace InterceptionKeymapper.Model
             List<ushort> vals = new List<ushort>();
             foreach (var x in Shortcuts)
             {
-                int i = 0;
+				if (!x.Device.Active)
+					continue;
+				List<ushort> temp = new List<ushort>();
+				foreach (var t in x.Target.Split('+'))
+					temp.Add(KeyToShort(t));
+				if (temp.Contains(0))
+					continue;
+				int i = 0;
                 foreach (var t in x.Target.Split('+'))
                 {
-                    vals.Add(KeyToShort(t));
+					vals.Add(KeyToShort(t));
                     i++;
                 }
                 while (i < 16)
@@ -68,7 +75,10 @@ namespace InterceptionKeymapper.Model
 
         public ushort KeyToShort(string key)
         {
-            return Helpers.KeyHelper.Instance.KeyNum[key.ToUpper()];
+			if (Helpers.KeyHelper.KeyNum.ContainsKey(key.ToUpper()))
+				return Helpers.KeyHelper.KeyNum[key.ToUpper()];
+			else
+				return 0;
         }
     }
 }

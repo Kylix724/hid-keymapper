@@ -4,56 +4,6 @@
 #include "stdafx.h"
 #include "wrapper.h"
 
-//void add_pair(char* hwid, int key, unsigned short val) {
-//	if (find(known_devices.begin(), known_devices.end(), hwid) != known_devices.end())
-//		shortcut_map[hwid][key].push_back(val);
-//}
-//
-//__declspec(dllexport) void add_pair(char* hwid, int key, unsigned short val[]) {
-//	if (find(known_devices.begin(), known_devices.end(), hwid) != known_devices.end()) {
-//		for (int i = 0; i < sizeof(val); i++)
-//			shortcut_map[hwid][key].push_back(val[i]);
-//	}
-//}
-//
-//__declspec(dllexport) void add_device(char* hwid) {
-//	if (find(known_devices.begin(), known_devices.end(), hwid) == known_devices.end())
-//		known_devices.push_back(hwid);
-//}
-//
-//__declspec(dllexport) void remove_pair(char* hwid, int key) {
-//	if (find(known_devices.begin(), known_devices.end(), hwid) != known_devices.end()) {
-//		shortcut_map[hwid].erase(key);
-//	}
-//}
-//
-//__declspec(dllexport) void remove_device(char* hwid) {
-//	shortcut_map.erase(hwid);
-//	auto it = find(known_devices.begin(), known_devices.end(), hwid);
-//	if (it != known_devices.end())
-//		known_devices.erase(it);
-//}
-string ConvertWCSToMBS(const wchar_t* pstr, long wslen)
-{
-	int len = WideCharToMultiByte(CP_ACP, 0, pstr, wslen, NULL, 0, NULL, NULL);
-
-	string dblstr(len, '\0');
-	len = WideCharToMultiByte(CP_ACP, 0 /* no flags */,
-		pstr, wslen /* not necessary NULL-terminated */,
-		&dblstr[0], len,
-		NULL, NULL /* no default char */);
-
-	return dblstr;
-}
-
-string ConvertBSTRToMBS(BSTR bstr)
-{
-	int wslen = SysStringLen(bstr);
-	return ConvertWCSToMBS((wchar_t*)bstr, wslen);
-}
-
-
-
 
 __declspec(dllexport) BSTR get_hardware_id() {
 	InterceptionContext context;
@@ -79,7 +29,6 @@ __declspec(dllexport) BSTR get_hardware_id() {
 	if (length > 0 && length < sizeof(temp)) {
 		BSTR bstr = SysAllocString(temp);
 		return bstr;
-
 	}
 	return NULL;
 }
@@ -147,8 +96,6 @@ __declspec(dllexport) void start_interception(BSTR hwid[], int key[], unsigned s
 				}
 				it++;
 			}
-			
-
 			if (!found) {
 				printf("keypress: %d %d %d\n", stroke.code, stroke.state, stroke.information);
 				interception_send(context, device, (InterceptionStroke *)&stroke, 1);

@@ -11,10 +11,12 @@ namespace InterceptionKeymapper.Model
     {
         private string _hwid;
         private string _name;
+		private bool _active;
 
         public Device(string hwid, string name){
             Hwid = hwid;
             Name = name;
+			_active = true;
         }
 
         public string Hwid
@@ -36,6 +38,16 @@ namespace InterceptionKeymapper.Model
                 OnPropertyChanged("Name");
             }
         }
+
+		public bool Active
+		{
+			get => _active;
+			set
+			{
+				_active = value;
+				OnPropertyChanged("Active");
+			}
+		}
 
         public override string ToString()
         {

@@ -32,8 +32,6 @@ namespace InterceptionKeymapper.ViewModel
             //Add every viewname to matching viewmodel
 
             ViewModels.Add("listViewUserControl", new ListViewViewModel());
-            ViewModels.Add("showDevicesWindow", new ShowDevicesViewModel());
-            ViewModels.Add("addDeviceWindow", new AddDeviceViewModel());
             
             UIStateManager.Instance.OnUiStateChanged += OnUIStateChanged;
             CurrentViewModel = ViewModels[ENTRY_POINT];

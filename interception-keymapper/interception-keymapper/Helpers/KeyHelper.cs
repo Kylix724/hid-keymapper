@@ -9,7 +9,7 @@ namespace InterceptionKeymapper.Helpers
     public class KeyHelper : LazySingleton<KeyHelper>
     {
 
-        public Dictionary<string, ushort> KeyNum = new Dictionary<string, ushort>()
+        public static Dictionary<string, ushort> KeyNum = new Dictionary<string, ushort>()
         {
             ["ESCAPE"] = 1,
             ["D1"] = 2,
@@ -78,6 +78,7 @@ namespace InterceptionKeymapper.Helpers
             ["F8"] = 66,
             ["F9"] = 67,
             ["F10"] = 68,
+			["SYSTEM"] = 68,
             ["NUMLOCK"] = 69,
             ["SCROLL"] = 70,
             ["NUMPAD7"] = 71,

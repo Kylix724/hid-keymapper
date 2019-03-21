@@ -15,6 +15,14 @@ namespace InterceptionKeymapper.Model
         private ObservableCollection<Device> _devices = new ObservableCollection<Device>();
         public ObservableCollection<Device> Devices => _devices;
 
+		public Dictionary<string, Device> DevicesByName
+		{
+			get
+			{
+				return Devices.ToDictionary(x => x.Name, x => x);
+			}
+		}
+
         public string GetDevice()
         {
             string s = InterceptionManager.get_hardware_id();
