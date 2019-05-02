@@ -45,5 +45,28 @@ namespace InterceptionKeymapper.Helpers
 				}
 			}
 		}
+
+		public static void SaveSettings()
+		{
+			using (var sw = new StreamWriter("config.ini"))
+			{
+				sw.WriteLine($"InterruptKey={TempStorage.Instance.InterruptKey}");
+				sw.WriteLine($"Delay={TempStorage.Instance.ButtonDelay}");
+			}
+		}
+
+		public static void LoadSettings()
+		{
+			if(File.Exists("config.ini"))
+				using (var sr = new StreamReader("config.ini"))
+				{
+					var x = sr.ReadLine();
+					if (x != null)
+						TempStorage.Instance.InterruptKey = x.Split('=')[1];
+					x = sr.ReadLine();
+					if(x != null)
+						TempStorage.Instance.ButtonDelay = Int32.Parse(x.Split('=')[1]);
+				}
+		}
 	}
 }

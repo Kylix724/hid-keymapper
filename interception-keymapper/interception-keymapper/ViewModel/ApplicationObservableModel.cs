@@ -28,9 +28,9 @@ namespace InterceptionKeymapper.ViewModel
 			taskFactory = new TaskFactory(TaskScheduler.FromCurrentSynchronizationContext());
 			ShortcutManager.Instance.Shortcuts.CollectionChanged += ShortcutsCollectionChanged;
 			DeviceManager.Instance.Devices.CollectionChanged += DevicesCollectionChanged;
-			TempStorage.Instance.PropertyChanged += SetShortcut;
+			TempStorage.Instance.PropertyChanged += PropertyChangedHandler;
 			NewDeviceHwid = "Get Device";
-			Title = "Interception Keymapper";
+			Title = null;
 		}
 
 		#region Binding Variables
@@ -40,7 +40,10 @@ namespace InterceptionKeymapper.ViewModel
 			get => _title;
 			set
 			{
-				_title = "InterceptionKeymapper - " + value;
+				if (value != null)
+					_title = $"{value} - Interception Keymapper";
+				else
+					_title = "Interception Keymapper";
 				OnPropertyChanged("Title");
 			}
 		}
@@ -151,20 +154,16 @@ namespace InterceptionKeymapper.ViewModel
 		#endregion
 
 		#region Methods
-		public void SetShortcut(object sender, PropertyChangedEventArgs e)
+		public void PropertyChangedHandler(object sender, PropertyChangedEventArgs e)
 		{
 			if (e.PropertyName == "DummyKey")
-			{
 				ShortcutKey = TempStorage.Instance.Key;
-			}
 			else if (e.PropertyName == "DummyTarget")
-			{
-				ShortcutTarget = TempStorage.Instance.Target;
-			}
-			else if (e.PropertyName == "Title")
-			{
-				Title = TempStorage.Instance.FileLocation.Split('\\').Last();
-			}
+				ShortcutTarget = TempStorage.Instance.Target;		
+			else if (e.PropertyName == "Title")			
+				Title = TempStorage.Instance.FileLocation.Split('\\').Last();			
+			else if (e.PropertyName == "InterruptKey")
+				InterruptKey = TempStorage.Instance.InterruptKey;
 		}
 		#endregion
 
@@ -243,12 +242,15 @@ namespace InterceptionKeymapper.ViewModel
 				{
 					_editShortcutCommand = new ActionCommand(e =>
 					{
-						ShortcutDevice = DeviceManager.Instance.DevicesByName[SelectedShortcut.Device];
-						TempStorage.Instance.Key = SelectedShortcut.Key;
-						TempStorage.Instance.Target = SelectedShortcut.Target;
-						ShortcutKey = SelectedShortcut.Key;
-						ShortcutTarget = SelectedShortcut.Target;
-						_editShortcut = SelectedShortcut;
+						if (SelectedShortcut != null)
+						{
+							ShortcutDevice = DeviceManager.Instance.DevicesByName[SelectedShortcut.Device];
+							TempStorage.Instance.Key = SelectedShortcut.Key;
+							TempStorage.Instance.Target = SelectedShortcut.Target;
+							ShortcutKey = SelectedShortcut.Key;
+							ShortcutTarget = SelectedShortcut.Target;
+							_editShortcut = SelectedShortcut;
+						}
 					});
 				}
 				return _editShortcutCommand;
@@ -264,9 +266,11 @@ namespace InterceptionKeymapper.ViewModel
 				{
 					_editShortcutFlyoutCommand = new ActionCommand(e =>
 					{
-						Shortcuts.Remove(_editShortcut);
-						ShortcutManager.Instance.Shortcuts[ShortcutManager.Instance.Shortcuts.IndexOf(_editShortcut)]
-						= new Shortcut(ShortcutDevice, TempStorage.Instance.Key, TempStorage.Instance.Target);
+						if (ShortcutManager.Instance.Shortcuts.Contains(_editShortcut))
+							ShortcutManager.Instance.Shortcuts[ShortcutManager.Instance.Shortcuts.IndexOf(_editShortcut)]
+							= new Shortcut(ShortcutDevice, TempStorage.Instance.Key, TempStorage.Instance.Target);
+						else
+							ShortcutManager.Instance.Shortcuts.Add(new Shortcut(ShortcutDevice, TempStorage.Instance.Key, TempStorage.Instance.Target));
 					});
 				}
 				return _editShortcutFlyoutCommand;
@@ -314,9 +318,12 @@ namespace InterceptionKeymapper.ViewModel
 				if (_editDeviceCommand == null)
 					_editDeviceCommand = new ActionCommand(e =>
 					{
-						NewDeviceName = SelectedDevice.Name;
-						NewDeviceHwid = SelectedDevice.Hwid;
-						_editDevice = SelectedDevice;
+						if (SelectedDevice != null)
+						{
+							NewDeviceName = SelectedDevice.Name;
+							NewDeviceHwid = SelectedDevice.Hwid;
+							_editDevice = SelectedDevice;
+						}
 					});
 				return _editDeviceCommand;
 			}
@@ -344,7 +351,10 @@ namespace InterceptionKeymapper.ViewModel
 				if (_editDeviceFlyoutCommand == null)
 					_editDeviceFlyoutCommand = new ActionCommand(e =>
 					{
-						DeviceManager.Instance.Devices[DeviceManager.Instance.Devices.IndexOf(_editDevice)] = new Device(NewDeviceHwid, NewDeviceName);
+						if (DeviceManager.Instance.Devices.Contains(_editDevice))
+							DeviceManager.Instance.Devices[DeviceManager.Instance.Devices.IndexOf(_editDevice)] = new Device(NewDeviceHwid, NewDeviceName);
+						else
+							DeviceManager.Instance.Devices.Add(new Device(NewDeviceHwid, NewDeviceName));
 					});
 				return _editDeviceFlyoutCommand;
 			}
@@ -386,7 +396,7 @@ namespace InterceptionKeymapper.ViewModel
 			get
 			{
 				if (_clearInterruptKeyCommand == null)
-					_clearInterruptKeyCommand = new ActionCommand(e => { InterruptKey = ""; });
+					_clearInterruptKeyCommand = new ActionCommand(e => { TempStorage.Instance.InterruptKey = ""; });
 				return _clearInterruptKeyCommand;
 			}
 		}

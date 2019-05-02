@@ -44,10 +44,11 @@ namespace InterceptionKeymapper.Model
         }
 
 		public void StartInterception(){
-			if(t == null)
+			if (t==null || (t != null && !t.IsAlive))
+			{
 				t = new Thread(new ThreadStart(Intercept));
-			if(!t.IsAlive)
 				t.Start();
+			}
 		}
 
         private void Intercept()
@@ -80,7 +81,7 @@ namespace InterceptionKeymapper.Model
                 key.Add(KeyToShort(x.Key));
             }
 
-			InterceptionManager.start_interception(hwid.ToArray(), key.ToArray(), vals.ToArray(), hwid.Count, 10, 1);
+			InterceptionManager.start_interception(hwid.ToArray(), key.ToArray(), vals.ToArray(), hwid.Count, TempStorage.Instance.ButtonDelay, KeyToShort(TempStorage.Instance.InterruptKey));
         }
 
         public ushort KeyToShort(string key)

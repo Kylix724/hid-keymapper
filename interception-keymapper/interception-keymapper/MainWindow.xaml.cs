@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.IO;
 
 namespace InterceptionKeymapper
 {
@@ -21,8 +22,9 @@ namespace InterceptionKeymapper
         public MainWindow()
         {
             InitializeComponent();
-			
-        }
+			Loader.LoadSettings();
+		}
+
 		public static object AiLoggingService { get; private set; }
 
 		private void MenuSave_Click(object sender, RoutedEventArgs e)
@@ -107,10 +109,6 @@ namespace InterceptionKeymapper
 			EditDeviceFlyout.IsOpen = true;
 		}
 
-		private void FlyoutAddShortcut_Click(object sender, RoutedEventArgs e)
-		{
-			AddShortcutFlyout.IsOpen = false;
-		}
 
 		private void KeyBox_KeyDown(object sender, KeyEventArgs e)
 		{
@@ -164,10 +162,6 @@ namespace InterceptionKeymapper
 			}
 		}
 
-		private void FlyoutAddDevice_Click(object sender, RoutedEventArgs e)
-		{
-			AddDeviceFlyout.IsOpen = false;
-		}
 
 		private void StartInterception_Click(object sender, RoutedEventArgs e)
 		{
@@ -179,22 +173,6 @@ namespace InterceptionKeymapper
 			e.Handled = true;
 		}
 
-		private static bool IsNumpadEnterKey(KeyEventArgs e)
-		{
-			if (e.Key != Key.Enter)
-				return false;
-
-			// To understand the following UGLY implementation please check this MSDN link. Suggested workaround to differentiate between the Return key and Enter key.
-			// https://social.msdn.microsoft.com/Forums/vstudio/en-US/b59e38f1-38a1-4da9-97ab-c9a648e60af5/whats-the-difference-between-keyenter-and-keyreturn?forum=wpf
-			try
-			{
-				return (bool)typeof(KeyEventArgs).InvokeMember("IsExtendedKey", BindingFlags.GetProperty | BindingFlags.NonPublic | BindingFlags.Instance, null, e, null);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
 
 		private void InterruptKeyBox_PreviewKeyDown(object sender, KeyEventArgs e)
 		{
@@ -226,6 +204,51 @@ namespace InterceptionKeymapper
 			}
 
 		}
+
+		private void FlyoutAddShortcut_Click(object sender, RoutedEventArgs e)
+		{
+			AddShortcutFlyout.IsOpen = false;
+		}
+
+		private void FlyoutAddDevice_Click(object sender, RoutedEventArgs e)
+		{
+			AddDeviceFlyout.IsOpen = false;
+		}
+
+		private void FlyoutEditShortcut_Click(object sender, RoutedEventArgs e)
+		{
+			EditShortcutFlyout.IsOpen = false;
+		}
+
+		private void FlyoutEditDevice_Click(object sender, RoutedEventArgs e)
+		{
+			EditDeviceFlyout.IsOpen = false;
+		}
+
+
+		private void MetroWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+		{
+			Loader.SaveSettings();
+		}
+
+
+		private static bool IsNumpadEnterKey(KeyEventArgs e)
+		{
+			if (e.Key != Key.Enter)
+				return false;
+
+			// To understand the following UGLY implementation please check this MSDN link. Suggested workaround to differentiate between the Return key and Enter key.
+			// https://social.msdn.microsoft.com/Forums/vstudio/en-US/b59e38f1-38a1-4da9-97ab-c9a648e60af5/whats-the-difference-between-keyenter-and-keyreturn?forum=wpf
+			try
+			{
+				return (bool)typeof(KeyEventArgs).InvokeMember("IsExtendedKey", BindingFlags.GetProperty | BindingFlags.NonPublic | BindingFlags.Instance, null, e, null);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
 	}
 }
 
