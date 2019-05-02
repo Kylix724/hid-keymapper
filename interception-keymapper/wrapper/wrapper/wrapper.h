@@ -19,6 +19,6 @@ using namespace std;
 
 extern "C"{
 	__declspec(dllexport) BSTR get_hardware_id();
-	__declspec(dllexport) void start_interception(BSTR hwid[], int key[], unsigned short val[], int length);
+	__declspec(dllexport) void start_interception(BSTR hwid[], int key[], unsigned short val[], int length, int delay, int interrupt);
 }
 #endif

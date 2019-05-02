@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace InterceptionKeymapper.Model
@@ -13,7 +14,9 @@ namespace InterceptionKeymapper.Model
     {
         private ObservableCollection<Shortcut> _shortcuts = new ObservableCollection<Shortcut>();
         public ObservableCollection<Shortcut> Shortcuts => _shortcuts;
-        public void AddShortcut(Device device, string key, string target)
+		private Thread t;
+
+		public void AddShortcut(Device device, string key, string target)
         {
             List<ushort> vals = new List<ushort>();
             foreach (var t in target.Split('+'))
@@ -27,27 +30,34 @@ namespace InterceptionKeymapper.Model
 
         public void AddShortcut(Device device)
         {
-            if (device != null && ShortcutDummy.Instance.Key != "" && ShortcutDummy.Instance.Target.Count() != 0)
+            if (device != null && TempStorage.Instance.Key != "" && TempStorage.Instance.Target.Count() != 0)
             {
                 List<ushort> vals = new List<ushort>();
-                foreach (var t in ShortcutDummy.Instance.Target.Split('+'))
+                foreach (var t in TempStorage.Instance.Target.Split('+'))
                 {
                     vals.Add(KeyToShort(t));
                 }
                 //InterceptionManager.add_pair(Marshal.StringToHGlobalAuto(device.Hwid), KeyToShort(ShortcutDummy.Instance.Key), vals.ToArray());
-                Shortcuts.Add(new Shortcut(device, ShortcutDummy.Instance.Key, ShortcutDummy.Instance.Target));
-                ShortcutDummy.Instance.flush();
+                Shortcuts.Add(new Shortcut(device, TempStorage.Instance.Key, TempStorage.Instance.Target));
+                TempStorage.Instance.FlushShortcut();
             }
         }
 
-        public void StartInterception()
+		public void StartInterception(){
+			if(t == null)
+				t = new Thread(new ThreadStart(Intercept));
+			if(!t.IsAlive)
+				t.Start();
+		}
+
+        private void Intercept()
         {
             List<IntPtr> hwid = new List<IntPtr>();
             List<int> key = new List<int>();
             List<ushort> vals = new List<ushort>();
-            foreach (var x in Shortcuts)
-            {
-				if (!x.Device.Active)
+			foreach (var x in Shortcuts)
+			{
+				if (!DeviceManager.Instance.DevicesByName[x.Device].Active)
 					continue;
 				List<ushort> temp = new List<ushort>();
 				foreach (var t in x.Target.Split('+'))
@@ -66,11 +76,11 @@ namespace InterceptionKeymapper.Model
                     i++;
                 }
                 
-                hwid.Add(Marshal.StringToBSTR(x.Device.Hwid));
+                hwid.Add(Marshal.StringToBSTR(DeviceManager.Instance.DevicesByName[x.Device].Hwid));
                 key.Add(KeyToShort(x.Key));
             }
 
-            InterceptionManager.start_interception(hwid.ToArray(), key.ToArray(), vals.ToArray(), hwid.Count);
+			InterceptionManager.start_interception(hwid.ToArray(), key.ToArray(), vals.ToArray(), hwid.Count, 10, 1);
         }
 
         public ushort KeyToShort(string key)
@@ -79,6 +89,6 @@ namespace InterceptionKeymapper.Model
 				return Helpers.KeyHelper.KeyNum[key.ToUpper()];
 			else
 				return 0;
-        }
-    }
+        }		
+	}
 }

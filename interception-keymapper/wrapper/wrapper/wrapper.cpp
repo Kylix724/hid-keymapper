@@ -33,7 +33,7 @@ __declspec(dllexport) BSTR get_hardware_id() {
 	return NULL;
 }
 
-__declspec(dllexport) void start_interception(BSTR hwid[], int key[], unsigned short val[], int length) {
+__declspec(dllexport) void start_interception(BSTR hwid[], int key[], unsigned short val[], int length, int delay, int interrupt) {
 	InterceptionContext context;
 	InterceptionDevice device;
 	InterceptionKeyStroke stroke;
@@ -43,7 +43,6 @@ __declspec(dllexport) void start_interception(BSTR hwid[], int key[], unsigned s
 	map<wstring, map<int, vector<unsigned short>>> shortcut_map;
 	int offset = 0;
 	for(int i = 0; i < length; i++) {
-		assert(bs != nullptr);
 		wstring ws(hwid[i], SysStringLen(hwid[i]));
 		printf("%ws %d\n", ws.c_str(), key[i]);
 		for(int j = offset; j < offset+16; j++){
@@ -61,11 +60,11 @@ __declspec(dllexport) void start_interception(BSTR hwid[], int key[], unsigned s
 
 	while (interception_receive(context, device = interception_wait(context), (InterceptionStroke *)&stroke, 1) > 0)
 	{
-		if (stroke.code == 1) break;
+		if (stroke.code == interrupt) break;
 		found = false;
 		wchar_t hardware_id[500];
 		size_t length = interception_get_hardware_id(context, device, hardware_id, sizeof(hardware_id));
-		printf("%d \n %ws \n", length, hardware_id);
+
 		map<wstring, map<int, vector<unsigned short>>>::iterator mapIter = shortcut_map.find(wstring(hardware_id));
 		if (length > 0 && length < sizeof(hardware_id) && mapIter != shortcut_map.end()) {
 			map<int, vector<unsigned short>>::iterator it = mapIter->second.begin();
@@ -88,7 +87,7 @@ __declspec(dllexport) void start_interception(BSTR hwid[], int key[], unsigned s
 						}
 						printf("shortcut: %d %d %d\n", stroke.code, stroke.state, stroke.information);
 						interception_send(context, device, (InterceptionStroke *)&stroke, 1);
-						Sleep(20);
+						Sleep(delay);
 
 						it2++;
 					}

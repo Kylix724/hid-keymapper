@@ -7,20 +7,23 @@ using System.Threading.Tasks;
 
 namespace InterceptionKeymapper.Helpers
 {
-    class ShortcutDummy : ObservableModelBase
+    class TempStorage : ObservableModelBase
     {
         private Device _device = null;
         private string _key = "";
         private string _target = "";
+		private string _interruptKey = "Escape";
+		private int _buttonDelay = 15;
+		private string _fileLocation = null;
 
-        private static ShortcutDummy _instance;
-        public static ShortcutDummy Instance
+        private static TempStorage _instance;
+        public static TempStorage Instance
         {
             get
             {
                 if (_instance == null)
                 {
-                    _instance = new ShortcutDummy();
+                    _instance = new TempStorage();
                 }
 
                 return _instance;
@@ -54,16 +57,49 @@ namespace InterceptionKeymapper.Helpers
                 OnPropertyChanged("DummyTarget");
             }
         }
+		
+		public string InterruptKey
+		{
+			get => _interruptKey;
+			set
+			{
+				_interruptKey = value;
+				OnPropertyChanged("InterruptKey");
+			}
+		}
 
-        public override string ToString()
-        {
-            return $"{Device} {Key}{Target}";
-        }
+		public int ButtonDelay
+		{
+			get => _buttonDelay;
+			set
+			{
+				_buttonDelay = value;
+				OnPropertyChanged("ButtonDelay");
+			}
+		}
 
-        public void flush(){
+		public string FileLocation
+		{
+			get => _fileLocation;
+			set
+			{
+				_fileLocation = value;
+				
+				OnPropertyChanged("FileLocation");
+				
+			}
+		}
+
+        public void FlushShortcut(){
             Device = null;
             Key = "";
             Target = "";
         }
+
+		public void ResetSettings()
+		{
+			ButtonDelay = 15;
+			InterruptKey = "Escape";
+		}
     }
 }

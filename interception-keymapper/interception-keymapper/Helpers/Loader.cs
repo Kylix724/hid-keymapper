@@ -21,7 +21,7 @@ namespace InterceptionKeymapper.Helpers
 				writer.WriteLine("");
 				foreach(var shortcut in ShortcutManager.Instance.Shortcuts)
 				{
-					writer.WriteLine($"{shortcut.Device.Name},{shortcut.Key},{shortcut.Target}");
+					writer.WriteLine($"{shortcut.Device},{shortcut.Key},{shortcut.Target}");
 				}
 			}
 		}
@@ -41,7 +41,7 @@ namespace InterceptionKeymapper.Helpers
 				Dictionary<string, Device> devicesByName = DeviceManager.Instance.DevicesByName;
 				while(!reader.EndOfStream){
 					string[] split = reader.ReadLine().Split(',');
-					ShortcutManager.Instance.Shortcuts.Add(new Shortcut(devicesByName[split[0].Split('(')[0]], split[1], split[2]));
+					ShortcutManager.Instance.Shortcuts.Add(new Shortcut(split[0], split[1], split[2]));
 				}
 			}
 		}

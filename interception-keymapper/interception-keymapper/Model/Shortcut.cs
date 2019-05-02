@@ -9,18 +9,25 @@ namespace InterceptionKeymapper.Model
 {
     public class Shortcut : ObservableModelBase
     {
-        private Device _device;
+        private string _device;
         private string _key;
         private string _target;
 
-        public Shortcut(Device device, string key, string target)
+        public Shortcut(string device, string key, string target)
         {
             Device = device;
             Key = key;
             Target = target;
         }
 
-        public Device Device
+		public Shortcut(Device device, string key, string target)
+		{
+			Device = device.Name;
+			Key = key;
+			Target = target;
+		}
+
+		public string Device
         {
             get => _device;
             set
@@ -50,7 +57,7 @@ namespace InterceptionKeymapper.Model
 
         public override string ToString()
         {
-            return $"{Device.Name} {Key} {Target}";
+            return $"{Device} {Key} {Target}";
         }
     }
 }

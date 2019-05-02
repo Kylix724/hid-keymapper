@@ -8,7 +8,8 @@
         xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:views="clr-namespace:InterceptionKeymapper.Views"
         xmlns:viewmodel="clr-namespace:InterceptionKeymapper.ViewModel"
-        Title="Interception Keymapper" Height="900" Width="1600"
+		xmlns:local="clr-namespace:InterceptionKeymapper"
+        Title="{Binding Title}" Height="1000" Width="800"
 		ResizeMode="CanMinimize">
 
     <Window.Resources>
@@ -20,12 +21,188 @@
     </Window.Resources>
 
 
-	<Grid>
-		<ContentControl x:Name="MainContentControl" Content="{Binding CurrentViewModel}" />
-		<!--<views:LobbyUserControl/>-->
-
-
-
-    </Grid>
+	<Grid VerticalAlignment="Top" MinHeight="1000" MinWidth="800">
+		<DockPanel HorizontalAlignment="Left" LastChildFill="True" VerticalAlignment="Top" MinHeight="1000" MinWidth="800">
+			<Menu x:Name="menuBar" DockPanel.Dock="Top" Height="40" VerticalAlignment="Center" Background="#FF0081B2" BorderBrush="#FF838383" Foreground="White" OpacityMask="#FF838383" 
+				  FontFamily="Global User Interface" FontSize="16" Padding="0,5">
+				<MenuItem Header="_File" Padding="17,6" Height="auto" HorizontalContentAlignment="Center" Background="#FF0081B2" Foreground="White" OpacityMask="#FF025A7C">
+					<MenuItem.BorderBrush>
+						<SolidColorBrush Color="#FF025A7C" Opacity="0"/>
+					</MenuItem.BorderBrush>
+					<MenuItem Header="_New" IsCheckable="False" x:Name="menuNew" Click="MenuNew_Click" Foreground="Black"/>
+					<MenuItem Header="_Open" IsCheckable="false" x:Name="menuOpen" Click="MenuOpen_Click" Foreground="Black"/>
+					<MenuItem Header="_Save" IsCheckable="false" x:Name="menuSave" Click="MenuSave_Click" Foreground="Black"/>
+				</MenuItem>
+				<MenuItem Header="_Add Device" x:Name="AddDevice" Command="{Binding AddDevice}" Click="AddDevice_Click" Background="{x:Null}" Padding="10,6,10,8" HorizontalContentAlignment="Center" Foreground="White"/>
+				<MenuItem Header="_Add Shortcut" x:Name="AddShortcut"  Click="AddShortcut_Click" ToolTip="Add a new shortcut" Background="{x:Null}" BorderBrush="{x:Null}" HorizontalContentAlignment="Center" 
+						  VerticalAlignment="Center" HorizontalAlignment="Center" Padding="10,6"/>
+				<MenuItem Header="_Start Interception" x:Name="StartInterception" Click="StartInterception_Click" ToolTip="Start applying the shortcuts" Background="{x:Null}" HorizontalContentAlignment="Center" 
+						  VerticalAlignment="Center" HorizontalAlignment="Center" Padding="10,6"/>
+				<MenuItem Header="_Settings" x:Name="Settings" Click="Settings_Click" Command="{Binding SettingsCommand}" Background="{x:Null}" HorizontalContentAlignment="Center" HorizontalAlignment="Right" 
+						  Padding="10,6" VerticalAlignment="Center"/>
+			</Menu>
+			<ListView Name="DeviceList" DockPanel.Dock="Bottom" MinHeight="200" ItemsSource="{Binding Devices}" SelectedItem="{Binding SelectedDevice}" SelectedValue="{Binding SelectedValue}" 
+					  FontFamily="Global User Interface" VerticalContentAlignment="Bottom" Padding="0" Background="#FFEEEEEE" FontSize="14" BorderBrush="#FF747474">
+				<ListView.View>
+					<GridView AllowsColumnReorder="False">
+						<GridViewColumn Header="Active" Width="70">
+							<GridViewColumn.CellTemplate>
+								<DataTemplate>
+									<StackPanel Orientation="Horizontal">
+										<StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Height="Auto" VerticalAlignment="Center">
+											<CheckBox IsChecked="{Binding Active, Mode=TwoWay}"/>
+										</StackPanel>
+									</StackPanel>
+								</DataTemplate>
+							</GridViewColumn.CellTemplate>
+						</GridViewColumn>
+						<GridViewColumn Header="Device Name" Width="200">
+							<GridViewColumn.CellTemplate>
+								<DataTemplate>
+									<StackPanel Orientation="Horizontal">
+										<StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Height="Auto" VerticalAlignment="Center">
+											<Label Content="{Binding Name}"/>
+										</StackPanel>
+									</StackPanel>
+								</DataTemplate>
+							</GridViewColumn.CellTemplate>
+						</GridViewColumn>
+						<GridViewColumn Header="Hardware Id" Width="930">
+							<GridViewColumn.CellTemplate>
+								<DataTemplate>
+									<StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Height="Auto" VerticalAlignment="Center" Background="{x:Null}" IsEnabled="True" Focusable="False">
+										<Label Content="{Binding Hwid}"/>
+									</StackPanel>
+								</DataTemplate>
+							</GridViewColumn.CellTemplate>
+						</GridViewColumn>
+					</GridView>
+				</ListView.View>
+				<ListView.ContextMenu>
+					<ContextMenu Name="DeviceContext" StaysOpen="true">
+						<ContextMenu.BitmapEffect>
+							<BitmapEffectGroup/>
+						</ContextMenu.BitmapEffect>
+						<MenuItem Header="Edit" Name="EditDevice" Click="EditDevice_Click" Command="{Binding EditDeviceCommand}"/>
+						<MenuItem Header="Remove" Name="RemoveDevice" Command="{Binding RemoveDeviceCommand}"/>
+					</ContextMenu>
+				</ListView.ContextMenu>
+			</ListView>
+			<ListView Name="ShortcutList" DockPanel.Dock="Top" ItemsSource="{Binding Shortcuts}" SelectedItem="{Binding SelectedShortcut}" SelectedValue="{Binding SelectedShortcutValue}" 
+			FontFamily="Global User Interface" VerticalContentAlignment="Bottom" ClipToBounds="True" Padding="0" Background="#FFEEEEEE" FontSize="14" BorderBrush="{x:Null}">
+				<ListView.View>
+					<GridView AllowsColumnReorder="True">
+						<GridViewColumn Header="Device" Width="100">
+							<GridViewColumn.CellTemplate>
+								<DataTemplate>
+									<StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Height="Auto" VerticalAlignment="Center" Background="{x:Null}" IsEnabled="True" Focusable="False">
+										<Label Content="{Binding Device}"/>
+									</StackPanel>
+								</DataTemplate>
+							</GridViewColumn.CellTemplate>
+						</GridViewColumn>
+						<GridViewColumn Header="Key" Width="50">
+							<GridViewColumn.CellTemplate>
+								<DataTemplate>
+									<StackPanel Orientation="Horizontal">
+										<StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Height="Auto" VerticalAlignment="Center">
+											<Label Content="{Binding Key}"/>
+										</StackPanel>
+									</StackPanel>
+								</DataTemplate>
+							</GridViewColumn.CellTemplate>
+						</GridViewColumn>
+						<GridViewColumn Header="Link" Width="1050">
+							<GridViewColumn.CellTemplate>
+								<DataTemplate>
+									<StackPanel Orientation="Horizontal">
+										<StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Height="Auto" VerticalAlignment="Center">
+											<Label Content="{Binding Target}"/>
+										</StackPanel>
+									</StackPanel>
+								</DataTemplate>
+							</GridViewColumn.CellTemplate>
+						</GridViewColumn>
+					</GridView>
+				</ListView.View>
+				<ListView.ContextMenu>
+					<ContextMenu Name="ZoneInformationList" StaysOpen="true">
+						<ContextMenu.BitmapEffect>
+							<BitmapEffectGroup/>
+						</ContextMenu.BitmapEffect>
+						<MenuItem Header="Edit" x:Name="EditShortcut" Click="EditShortcut_Click" Command="{Binding EditShortcutCommand}"/>
+						<MenuItem Header="Remove" x:Name="RemoveShortcut" Command="{Binding RemoveShortcutCommand}"/>
+					</ContextMenu>
+				</ListView.ContextMenu>
+			</ListView>
+		</DockPanel>
+		<controls:FlyoutsControl>
+			<controls:Flyout x:Name="AddShortcutFlyout" Header="Add Shortcut" 
+                            Position="Left" Width="350" Height="920" VerticalAlignment="Bottom"
+                            IsOpen="{Binding OpenFlyOut, Mode=TwoWay}" Padding="5,5,5,5">
+				<StackPanel>
+					<TextBlock Text="Choose Device:" Margin="5"/>
+					<ComboBox ItemsSource="{Binding Devices}" SelectedItem="{Binding ShortcutDevice}" Height="30" Margin="5"/>
+					<TextBlock Text="Key:" Margin="5"/>
+					<Button Content="{Binding ShortcutKey}" x:Name="KeyBox" Command="{Binding ClearShortcutKey}" PreviewKeyDown="KeyBox_KeyDown" Margin="5"/>
+					<TextBlock Text="Target:" Margin="5"/>
+					<Button Content="{Binding ShortcutTarget}" x:Name="TargetBox" Command="{Binding ClearShortcutTarget}" PreviewKeyDown="TargetBox_KeyDown" Margin="5"/>
+					<Button Content="Add" Command="{Binding AddShortcutCommand}" x:Name="FlyoutAddShortcut" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5"/>
+				</StackPanel>
+			</controls:Flyout>
+		</controls:FlyoutsControl>
+		<controls:FlyoutsControl>
+			<controls:Flyout x:Name="EditShortcutFlyout" Header="Edit Shortcut" 
+                            Position="Left" Width="350" Height="920" VerticalAlignment="Bottom"
+                            IsOpen="{Binding OpenFlyOut, Mode=TwoWay}">
+				<StackPanel>
+					<TextBlock Text="Device: " Margin="5"/>
+					<ComboBox ItemsSource="{Binding Devices}" SelectedItem="{Binding ShortcutDevice}" Height="30" Margin="5"/>
+					<TextBlock Text="Key:" Margin="5"/>
+					<Button Content="{Binding ShortcutKey}" Command="{Binding ClearShortcutKey}" x:Name="EditKeyBox" PreviewKeyDown="KeyBox_KeyDown" Margin="5"/>
+					<TextBlock Text="Target:" Margin="5"/>
+					<Button Content="{Binding ShortcutTarget}" Command="{Binding ClearShortcutTarget}" x:Name="EditTargetBox" PreviewKeyDown="TargetBox_KeyDown" Margin="5"/>
+					<Button Content="Edit" Command="{Binding EditShortcutFlyoutCommand}" x:Name="FlyoutEditShortcut" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5"/>
+				</StackPanel>
+			</controls:Flyout>
+		</controls:FlyoutsControl>
+		<controls:FlyoutsControl>
+			<controls:Flyout x:Name="AddDeviceFlyout" Header="Add Device" 
+                            Position="Left" Width="350" Height="920"
+                            IsOpen="{Binding OpenFlyOut, Mode=TwoWay}" VerticalAlignment="Bottom">
+				<StackPanel>
+					<TextBlock Text="Name:" Margin="5"/>
+					<TextBox Text="{Binding NewDeviceName, UpdateSourceTrigger=PropertyChanged}" x:Name="DeviceNameBox" Margin="5"/>
+					<Button Content="{Binding NewDeviceHwid}" Command="{Binding GetDeviceCommand}" PreviewKeyDown="GetDevice_PreviewKeyDown" x:Name="GetDevice" Margin="5"/>
+					<Button Content="Add" Command="{Binding AddDeviceCommand}" Click="FlyoutAddDevice_Click" x:Name="FlyoutAddDevice" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5"/>
+				</StackPanel>
+			</controls:Flyout>
+		</controls:FlyoutsControl>
+		<controls:FlyoutsControl>
+			<controls:Flyout x:Name="EditDeviceFlyout" Header="Edit Device" 
+                            Position="Left" Width="350" Height="920" VerticalAlignment="Bottom"
+                            IsOpen="{Binding OpenFlyOut, Mode=TwoWay}">
+				<StackPanel>
+					<TextBlock Text="Name:" Margin="5"/>
+					<TextBox Text="{Binding NewDeviceName, UpdateSourceTrigger=PropertyChanged}" x:Name="EditDeviceNameBox" Margin="5"/>
+					<Button Content="{Binding NewDeviceHwid}" Command="{Binding GetDeviceCommand}" x:Name="EditGetDevice" Margin="5"/>
+					<Button Content="Edit" Command="{Binding EditDeviceFlyoutCommand}" x:Name="FlyoutEditDevice" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5"/>
+				</StackPanel>
+			</controls:Flyout>
+		</controls:FlyoutsControl>
+		<controls:FlyoutsControl>
+			<controls:Flyout x:Name="SettingsFlyout" Header="Settings" 
+                            Position="Left" Width="350" Height="960" VerticalAlignment="Bottom"
+                            IsOpen="{Binding OpenFlyOut, Mode=TwoWay}">
+				<StackPanel>
+					<TextBlock Text="Button Delay:" Margin="5"/>
+					<TextBox Text="{Binding ButtonDelay, UpdateSourceTrigger=PropertyChanged}" x:Name="ButtonDelayBox" PreviewKeyDown="ButtonDelayBox_PreviewKeyDown" Margin="5"/>
+					<TextBlock Text="Cancel Button:" Margin="5"/>
+					<Button Content="{Binding InterruptKey}" Command="{Binding ClearInterruptClearCommand}" x:Name="InterruptKeyBox" PreviewKeyDown="InterruptKeyBox_PreviewKeyDown" Margin="5"/>
+					<Button Content="Save" Command="{Binding SettingsFlyoutCommand}" x:Name="FlyoutSettings" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5"/>
+				</StackPanel>
+			</controls:Flyout>
+		</controls:FlyoutsControl>
+	</Grid>
 
 </controls:MetroWindow>
