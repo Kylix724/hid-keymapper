@@ -1,28 +1,24 @@
-﻿using System.Windows;
-using MahApps.Metro.Controls;
-using InterceptionKeymapper.Helpers;
+﻿using InterceptionKeymapper.Helpers;
 using InterceptionKeymapper.Model;
-using InterceptionKeymapper.ViewModel;
+using MahApps.Metro.Controls;
 using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Reflection;
-using System.Windows.Controls;
+using System.Windows;
 using System.Windows.Input;
-using System.IO;
 
 namespace InterceptionKeymapper
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow : MetroWindow
-    {
-        public MainWindow()
-        {
-            InitializeComponent();
-			Loader.LoadSettings();
+	/// <summary>
+	/// Interaction logic for MainWindow.xaml
+	/// </summary>
+	public partial class MainWindow : MetroWindow
+	{
+		private Vars VARS;
+		public MainWindow()
+		{
+			InitializeComponent();
+			Loader.OnLaunch();
+			VARS = Vars.Instance;
 		}
 
 		public static object AiLoggingService { get; private set; }
@@ -59,6 +55,7 @@ namespace InterceptionKeymapper
 			EditShortcutFlyout.IsOpen = false;
 			EditDeviceFlyout.IsOpen = false;
 			SettingsFlyout.IsOpen = false;
+			AddKeyFlyout.IsOpen = false;
 			if (AddDeviceFlyout.IsOpen)
 				AddDeviceFlyout.IsOpen = false;
 			else
@@ -71,6 +68,7 @@ namespace InterceptionKeymapper
 			EditShortcutFlyout.IsOpen = false;
 			EditDeviceFlyout.IsOpen = false;
 			SettingsFlyout.IsOpen = false;
+			AddKeyFlyout.IsOpen = false;
 			if (AddShortcutFlyout.IsOpen)
 				AddShortcutFlyout.IsOpen = false;
 			else
@@ -83,6 +81,7 @@ namespace InterceptionKeymapper
 			AddDeviceFlyout.IsOpen = false;
 			EditDeviceFlyout.IsOpen = false;
 			SettingsFlyout.IsOpen = false;
+			AddKeyFlyout.IsOpen = false;
 			if (EditShortcutFlyout.IsOpen)
 				EditShortcutFlyout.IsOpen = false;
 			else
@@ -95,6 +94,7 @@ namespace InterceptionKeymapper
 			AddDeviceFlyout.IsOpen = false;
 			EditDeviceFlyout.IsOpen = false;
 			EditShortcutFlyout.IsOpen = false;
+			AddKeyFlyout.IsOpen = false;
 			if (SettingsFlyout.IsOpen)
 				SettingsFlyout.IsOpen = false;
 			else
@@ -106,18 +106,23 @@ namespace InterceptionKeymapper
 			AddDeviceFlyout.IsOpen = false;
 			EditShortcutFlyout.IsOpen = false;
 			AddShortcutFlyout.IsOpen = false;
+			AddKeyFlyout.IsOpen = false;
 			EditDeviceFlyout.IsOpen = true;
 		}
 
+		private void AddKey_Click(object sender, RoutedEventArgs e)
+		{
+			AddKeyFlyout.IsOpen = true;
+		}
 
 		private void KeyBox_KeyDown(object sender, KeyEventArgs e)
 		{
 			e.Handled = true;
 			if (e.Key == Key.Enter && IsNumpadEnterKey(e))
-				TempStorage.Instance.Key = $"NumpadEnter";
+				VARS.Key = 1028;
 			else if (e.Key == Key.System)
-				TempStorage.Instance.Key = $"{e.SystemKey}";
-			else TempStorage.Instance.Key = $"{e.Key}";
+				VARS.Key = ShortcutManager.Instance.KeyNum[e.SystemKey.ToString()];
+			else VARS.Key = ShortcutManager.Instance.KeyNum[e.Key.ToString()];
 		}
 
 		private void TargetBox_KeyDown(object sender, KeyEventArgs e)
@@ -125,43 +130,42 @@ namespace InterceptionKeymapper
 			if (e.IsRepeat)
 				return;
 			e.Handled = true;
-			if (TempStorage.Instance.Target != "")
+			if (VARS.Target != "")
 			{
 				if (e.Key == Key.Enter && IsNumpadEnterKey(e))
 				{
-					TempStorage.Instance.Target = $"{TempStorage.Instance.Target}+NumpadEnter";
+					VARS.Target = $"{VARS.Target}+NumpadEnter";
 					return;
 				}
 				if (e.Key == Key.System)
 				{
 					if (e.SystemKey == Key.LeftAlt || e.SystemKey == Key.F10)
 					{
-						TempStorage.Instance.Target = $"{TempStorage.Instance.Target}+{e.SystemKey}";
+						VARS.Target = $"{VARS.Target}+{e.SystemKey}";
 						return;
 					}
 
 				}
-				TempStorage.Instance.Target = $"{TempStorage.Instance.Target}+{e.Key}";
+				VARS.Target = $"{VARS.Target}+{e.Key}";
 			}
 			else if (e.Key == Key.System)
-				TempStorage.Instance.Target = $"{e.SystemKey}";
+				VARS.Target = $"{e.SystemKey}";
 			else
 			{
 				if (e.Key == Key.Enter && IsNumpadEnterKey(e))
 				{
-					TempStorage.Instance.Target = $"NumpadEnter";
+					VARS.Target = $"NumpadEnter";
 					return;
 				}
 				if (e.Key == Key.System)
 					if (e.SystemKey == Key.LeftAlt || e.SystemKey == Key.F10)
 					{
-						TempStorage.Instance.Target = $"{e.SystemKey}";
+						VARS.Target = $"{e.SystemKey}";
 						return;
 					}
-				TempStorage.Instance.Target = $"{e.Key}";
+				VARS.Target = $"{e.Key}";
 			}
 		}
-
 
 		private void StartInterception_Click(object sender, RoutedEventArgs e)
 		{
@@ -173,15 +177,14 @@ namespace InterceptionKeymapper
 			e.Handled = true;
 		}
 
-
 		private void InterruptKeyBox_PreviewKeyDown(object sender, KeyEventArgs e)
 		{
 			e.Handled = true;
 			if (e.Key == Key.Enter && IsNumpadEnterKey(e))
-				TempStorage.Instance.InterruptKey = $"NumpadEnter";
+				VARS.InterruptKey = $"NumpadEnter";
 			else if (e.Key == Key.System)
-				TempStorage.Instance.InterruptKey = $"{e.SystemKey}";
-			else TempStorage.Instance.InterruptKey = $"{e.Key}";
+				VARS.InterruptKey = $"{e.SystemKey}";
+			else VARS.InterruptKey = $"{e.Key}";
 		}
 
 		private void ButtonDelayBox_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -205,6 +208,11 @@ namespace InterceptionKeymapper
 
 		}
 
+		private void KeyNameBox_PreviewKeyDown(object sender, KeyEventArgs e)
+		{
+
+		}
+
 		private void FlyoutAddShortcut_Click(object sender, RoutedEventArgs e)
 		{
 			AddShortcutFlyout.IsOpen = false;
@@ -225,12 +233,25 @@ namespace InterceptionKeymapper
 			EditDeviceFlyout.IsOpen = false;
 		}
 
+		private void FlyoutAddKey_Click(object sender, RoutedEventArgs e)
+		{
+			AddKeyFlyout.IsOpen = false;
+		}
+
+		private void FlyoutSettings_Click(object sender, RoutedEventArgs e)
+		{
+			SettingsFlyout.IsOpen = false;
+		}
+
+		private void FlyoutAddKey_Click_1(object sender, RoutedEventArgs e)
+		{
+			AddKeyFlyout.IsOpen = false;
+		}
 
 		private void MetroWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
 		{
-			Loader.SaveSettings();
+			Loader.OnExit();
 		}
-
 
 		private static bool IsNumpadEnterKey(KeyEventArgs e)
 		{
@@ -243,9 +264,9 @@ namespace InterceptionKeymapper
 			{
 				return (bool)typeof(KeyEventArgs).InvokeMember("IsExtendedKey", BindingFlags.GetProperty | BindingFlags.NonPublic | BindingFlags.Instance, null, e, null);
 			}
-			catch (Exception ex)
+			catch
 			{
-				throw ex;
+				throw;
 			}
 		}
 

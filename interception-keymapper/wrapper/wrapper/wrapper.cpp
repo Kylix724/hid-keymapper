@@ -33,6 +33,24 @@ __declspec(dllexport) BSTR get_hardware_id() {
 	return NULL;
 }
 
+__declspec(dllexport) USHORT get_key() {
+	InterceptionContext context;
+	InterceptionDevice device;
+	InterceptionKeyStroke stroke;
+
+	SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
+
+	context = interception_create_context();
+
+	interception_set_filter(context, interception_is_keyboard, INTERCEPTION_FILTER_KEY_ALL);
+
+	interception_receive(context, device = interception_wait(context), (InterceptionStroke*)&stroke, 1);
+
+	interception_destroy_context(context);
+
+	return stroke.code;
+}
+
 __declspec(dllexport) void start_interception(BSTR hwid[], int key[], unsigned short val[], int length, int delay, int interrupt) {
 	InterceptionContext context;
 	InterceptionDevice device;

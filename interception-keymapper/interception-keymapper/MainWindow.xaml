@@ -1,17 +1,17 @@
 ﻿<controls:MetroWindow 
-        x:Class="InterceptionKeymapper.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:system="clr-namespace:System;assembly=mscorlib"
-        xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
-        xmlns:viewmodel="clr-namespace:InterceptionKeymapper.ViewModel"
+		x:Class="InterceptionKeymapper.MainWindow"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:system="clr-namespace:System;assembly=mscorlib"
+		xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+		xmlns:viewmodel="clr-namespace:InterceptionKeymapper.ViewModel"
 		xmlns:local="clr-namespace:InterceptionKeymapper"
-        Title="{Binding Title}" TitleCaps="False" 
+		Title="{Binding Title, UpdateSourceTrigger=PropertyChanged}"
 		Height="1000" Width="900" Closing="MetroWindow_Closing">
 
-    <Window.Resources>
+	<Window.Resources>
 		<DataTemplate DataType="{x:Type viewmodel:ApplicationObservableModel}">
 		</DataTemplate>
 	</Window.Resources>
@@ -21,7 +21,7 @@
 			<Button Content="New File" x:Name="menuNew" Click="MenuNew_Click" Foreground="White"/>
 			<Button Content="Open File" x:Name="menuOpen" Click="MenuOpen_Click" Foreground="White"/>
 			<Button Content="Save File" x:Name="menuSave" Click="MenuSave_Click" Foreground="White"/>
-			<Button Content="Add Device" x:Name="AddDevice" Command="{Binding AddDevice}" Click="AddDevice_Click" Foreground="White"/>
+			<Button Content="Add Device" x:Name="AddDevice" Click="AddDevice_Click" Foreground="White"/>
 			<Button Content="Add Shortcut" x:Name="AddShortcut"  Click="AddShortcut_Click" ToolTip="Add a new shortcut" Foreground="White"/>
 			<Button Content="Start Interception" x:Name="StartInterception" Click="StartInterception_Click" ToolTip="Start applying the shortcuts" Foreground="White"/>
 			<Button Content="Settings" x:Name="Settings" Click="Settings_Click" Command="{Binding SettingsCommand}" Foreground="White"/>
@@ -30,11 +30,11 @@
 	<Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 		<DockPanel LastChildFill="True" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
 			<DataGrid ItemsSource="{Binding Devices}" DockPanel.Dock="Bottom" AutoGenerateColumns="False" 
-					  MinHeight="150" SelectedItem="{Binding SelectedDevice}" SelectedValue="{Binding SelectedValue}">
+					  MinHeight="150" SelectedItem="{Binding SelectedDevice}">
 				<DataGrid.Columns>
 					<DataGridCheckBoxColumn Header="Active" Binding="{Binding Active, Mode=TwoWay}"/>
 					<DataGridTextColumn Header="Device Name" Binding="{Binding Name}" IsReadOnly="True"/>
-					<DataGridTextColumn Header="Device ID" Binding="{Binding Hwid}" IsReadOnly="True"/>
+					<DataGridTextColumn Header="Device Id" Binding="{Binding Hwid}" IsReadOnly="True"/>
 				</DataGrid.Columns>
 				<DataGrid.ContextMenu>
 					<ContextMenu Name="DeviceContext" StaysOpen="true">
@@ -43,11 +43,11 @@
 					</ContextMenu>
 				</DataGrid.ContextMenu>
 			</DataGrid>
-			<DataGrid DockPanel.Dock="Top" ItemsSource="{Binding Shortcuts}" SelectedItem="{Binding SelectedShortcut}" SelectedValue="{Binding SelectedShortcutValue}" ClipToBounds="True" AutoGenerateColumns="False">
+			<DataGrid DockPanel.Dock="Top" ItemsSource="{Binding Shortcuts}" SelectedItem="{Binding SelectedShortcut}"  ClipToBounds="True" AutoGenerateColumns="False">
 				<DataGrid.Columns>
 					<DataGridTextColumn Header="Device" Binding="{Binding Device}"/>
-					<DataGridTextColumn Header="Key" Binding="{Binding Key}"/>
-					<DataGridTextColumn Header="Target" Binding="{Binding Target}" Width="Auto"/>
+					<DataGridTextColumn Header="Key Id" Binding="{Binding Key}" MinWidth="100"/>
+					<DataGridTextColumn Header="Target" Binding="{Binding TargetString}" Width="Auto"/>
 				</DataGrid.Columns>
 				<DataGrid.ContextMenu>
 					<ContextMenu Name="ZoneInformationList" StaysOpen="true">
@@ -60,27 +60,30 @@
 
 		<controls:FlyoutsControl>
 			<controls:Flyout x:Name="AddShortcutFlyout" Header="Add Shortcut" 
-                            Position="Left" Width="350" Height="920" VerticalAlignment="Bottom"
-                            IsOpen="{Binding OpenFlyOut, Mode=TwoWay}" Padding="5,5,5,5">
+							Position="Left" Width="350" HorizontalAlignment="Stretch"  VerticalAlignment="Bottom"
+						 Padding="5,5,5,5">
 				<StackPanel>
 					<TextBlock Text="Choose Device:" Margin="5"/>
 					<ComboBox ItemsSource="{Binding Devices}" SelectedItem="{Binding ShortcutDevice}" Height="30" Margin="5"/>
-					<TextBlock Text="Key:" Margin="5"/>
+					<TextBlock Text="KeyId:" Margin="5"/>
 					<Button Content="{Binding ShortcutKey}" x:Name="KeyBox" Command="{Binding ClearShortcutKey}" PreviewKeyDown="KeyBox_KeyDown" Margin="5"/>
 					<TextBlock Text="Target:" Margin="5"/>
 					<Button Content="{Binding ShortcutTarget}" x:Name="TargetBox" Command="{Binding ClearShortcutTarget}" PreviewKeyDown="TargetBox_KeyDown" Margin="5"/>
 					<Button Content="Add" Command="{Binding AddShortcutCommand}" x:Name="FlyoutAddShortcut" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5"/>
+					
+					<TextBlock Text="If a Key is not working" Margin="5"/>
+					<Button Content="Add Key" x:Name="AddKey"  Click="AddKey_Click"  ToolTip="Add a new Key" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White"/>
 				</StackPanel>
 			</controls:Flyout>
 		</controls:FlyoutsControl>
 		<controls:FlyoutsControl>
 			<controls:Flyout x:Name="EditShortcutFlyout" Header="Edit Shortcut" 
-                            Position="Left" Width="350" Height="920" VerticalAlignment="Bottom"
-                            IsOpen="{Binding OpenFlyOut, Mode=TwoWay}">
+							Position="Left" Width="350" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"
+						>
 				<StackPanel>
 					<TextBlock Text="Device: " Margin="5"/>
 					<ComboBox ItemsSource="{Binding Devices}" SelectedItem="{Binding ShortcutDevice}" Height="30" Margin="5"/>
-					<TextBlock Text="Key:" Margin="5"/>
+					<TextBlock Text="KeyId:" Margin="5"/>
 					<Button Content="{Binding ShortcutKey}" Command="{Binding ClearShortcutKey}" x:Name="EditKeyBox" PreviewKeyDown="KeyBox_KeyDown" Margin="5"/>
 					<TextBlock Text="Target:" Margin="5"/>
 					<Button Content="{Binding ShortcutTarget}" Command="{Binding ClearShortcutTarget}" x:Name="EditTargetBox" PreviewKeyDown="TargetBox_KeyDown" Margin="5"/>
@@ -90,8 +93,7 @@
 		</controls:FlyoutsControl>
 		<controls:FlyoutsControl>
 			<controls:Flyout x:Name="AddDeviceFlyout" Header="Add Device" 
-                            Position="Left" Width="350" Height="920"
-                            IsOpen="{Binding OpenFlyOut, Mode=TwoWay}" VerticalAlignment="Bottom">
+							Position="Left" Width="350" HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
 				<StackPanel>
 					<TextBlock Text="Name:" Margin="5"/>
 					<TextBox Text="{Binding NewDeviceName, UpdateSourceTrigger=PropertyChanged}" x:Name="DeviceNameBox" Margin="5"/>
@@ -102,8 +104,7 @@
 		</controls:FlyoutsControl>
 		<controls:FlyoutsControl>
 			<controls:Flyout x:Name="EditDeviceFlyout" Header="Edit Device" 
-                            Position="Left" Width="350" Height="920" VerticalAlignment="Bottom"
-                            IsOpen="{Binding OpenFlyOut, Mode=TwoWay}">
+							Position="Left" Width="350" HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
 				<StackPanel>
 					<TextBlock Text="Name:" Margin="5"/>
 					<TextBox Text="{Binding NewDeviceName, UpdateSourceTrigger=PropertyChanged}" x:Name="EditDeviceNameBox" Margin="5"/>
@@ -114,14 +115,25 @@
 		</controls:FlyoutsControl>
 		<controls:FlyoutsControl>
 			<controls:Flyout x:Name="SettingsFlyout" Header="Settings" 
-                            Position="Left" Width="350" Height="960" VerticalAlignment="Bottom"
-                            IsOpen="{Binding OpenFlyOut, Mode=TwoWay}">
+							Position="Left" Width="350" HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
 				<StackPanel>
 					<TextBlock Text="Button Delay:" Margin="5"/>
 					<TextBox Text="{Binding ButtonDelay, UpdateSourceTrigger=PropertyChanged}" x:Name="ButtonDelayBox" PreviewKeyDown="ButtonDelayBox_PreviewKeyDown" Margin="5"/>
 					<TextBlock Text="Cancel Button:" Margin="5"/>
 					<Button Content="{Binding InterruptKey}" Command="{Binding ClearInterruptKeyCommand}" x:Name="InterruptKeyBox" PreviewKeyDown="InterruptKeyBox_PreviewKeyDown" Margin="5"/>
-					<Button Content="Save" Command="{Binding SettingsFlyoutCommand}" x:Name="FlyoutSettings" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5"/>
+					<Button Content="Save" Command="{Binding SettingsFlyoutCommand}" Click="FlyoutSettings_Click" x:Name="FlyoutSettings" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5"/>
+				</StackPanel>
+			</controls:Flyout>
+		</controls:FlyoutsControl>
+		<controls:FlyoutsControl>
+			<controls:Flyout x:Name="AddKeyFlyout" Header="Add Key" 
+							Position="Left" Width="350" HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
+				<StackPanel>
+					<TextBlock Text="Name:" Margin="5"/>
+					<TextBox Text="{Binding NewKeyName, UpdateSourceTrigger=PropertyChanged}" x:Name="KeyNameBox" PreviewKeyDown="KeyNameBox_PreviewKeyDown" Margin="5"/>
+					<TextBlock Text="Key Id:" Margin="5"/>
+					<Button Content="{Binding NewKeyId}" Command="{Binding GetKeyNumCommand}" x:Name="KeyNumButton" Margin="5"/>
+					<Button Content="Add" Command="{Binding AddKeyFlyoutCommand}" Click="FlyoutAddKey_Click_1" x:Name="FlyoutAddKey" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5"/>
 				</StackPanel>
 			</controls:Flyout>
 		</controls:FlyoutsControl>

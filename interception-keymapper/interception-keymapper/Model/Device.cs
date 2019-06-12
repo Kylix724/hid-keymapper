@@ -1,43 +1,39 @@
 ﻿using InterceptionKeymapper.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace InterceptionKeymapper.Model
 {
-    public class Device : ObservableModelBase
-    {
-        private string _hwid;
-        private string _name;
+	public class Device : ObservableModelBase
+	{
+		private string _hwid;
+		private string _name;
 		private bool _active;
 
-        public Device(string hwid, string name){
-            Hwid = hwid;
-            Name = name;
+		public Device(string hwid, string name)
+		{
+			Hwid = hwid;
+			Name = name;
 			_active = true;
-        }
+		}
 
-        public string Hwid
-        {
-            get => _hwid;
-            set
-            {
-                _hwid = value;
-                OnPropertyChanged("Hwid");
-            }
-        }
+		public string Hwid
+		{
+			get => _hwid;
+			set
+			{
+				_hwid = value;
+				OnPropertyChanged("Hwid");
+			}
+		}
 
-        public string Name
-        {
-            get => _name;
-            set
-            {
-                _name = value;
-                OnPropertyChanged("Name");
-            }
-        }
+		public string Name
+		{
+			get => _name;
+			set
+			{
+				_name = value;
+				OnPropertyChanged("Name");
+			}
+		}
 
 		public bool Active
 		{
@@ -49,9 +45,9 @@ namespace InterceptionKeymapper.Model
 			}
 		}
 
-        public override string ToString()
-        {
-            return $"{Name}({Hwid})";
-        }
-    }
+		public override string ToString()
+		{
+			return $"{Name}({Hwid})";
+		}
+	}
 }

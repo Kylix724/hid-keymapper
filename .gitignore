@@ -328,3 +328,4 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+/interception-keymapper/interception-keymapper/Resources/wrapperOld.dll

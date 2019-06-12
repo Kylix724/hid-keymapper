@@ -1,20 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using InterceptionKeymapper.Helpers;
+using InterceptionKeymapper.Model;
+using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Diagnostics;
-using System.Windows.Input;
-using InterceptionKeymapper.Helpers;
-using InterceptionKeymapper.Model;
 using System.ComponentModel;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace InterceptionKeymapper.ViewModel
 {
-    public class ApplicationObservableModel : ObservableModelBase
-    {
+	public class ApplicationObservableModel : ObservableModelBase
+	{
+		private Vars VARS;
 		TaskFactory taskFactory;
 		private ObservableCollection<Shortcut> _shortcuts = new ObservableCollection<Shortcut>();
 		private ObservableCollection<Device> _devices = new ObservableCollection<Device>();
@@ -28,9 +26,11 @@ namespace InterceptionKeymapper.ViewModel
 			taskFactory = new TaskFactory(TaskScheduler.FromCurrentSynchronizationContext());
 			ShortcutManager.Instance.Shortcuts.CollectionChanged += ShortcutsCollectionChanged;
 			DeviceManager.Instance.Devices.CollectionChanged += DevicesCollectionChanged;
-			TempStorage.Instance.PropertyChanged += PropertyChangedHandler;
 			NewDeviceHwid = "Get Device";
+			NewKeyId = "Get Key Id";
 			Title = null;
+			VARS = Vars.Instance;
+			VARS.PropertyChanged += PropertyChangedHandler;
 		}
 
 		#region Binding Variables
@@ -151,19 +151,54 @@ namespace InterceptionKeymapper.ViewModel
 				OnPropertyChanged("ButtonDelay");
 			}
 		}
+
+		private ushort _newKeyId = 0;
+		public string NewKeyId
+		{
+			get => _newKeyId.ToString();
+			set
+			{
+				ushort x;
+				if (ushort.TryParse(value.ToString(), out x))
+					_newKeyId = x;
+				else
+					_newKeyId = 0;
+				OnPropertyChanged("NewKeyId");
+			}
+		}
+
+		private string _newKeyName;
+		public string NewKeyName
+		{
+			get => _newKeyName;
+			set
+			{
+				_newKeyName = value;
+				OnPropertyChanged("NewKeyName");
+			}
+		}
 		#endregion
 
 		#region Methods
 		public void PropertyChangedHandler(object sender, PropertyChangedEventArgs e)
 		{
 			if (e.PropertyName == "DummyKey")
-				ShortcutKey = TempStorage.Instance.Key;
+				try
+				{
+					ShortcutKey = ShortcutManager.Instance.KeyNumReverse[VARS.Key];
+				}
+				catch { throw; }
 			else if (e.PropertyName == "DummyTarget")
-				ShortcutTarget = TempStorage.Instance.Target;		
-			else if (e.PropertyName == "Title")			
-				Title = TempStorage.Instance.FileLocation.Split('\\').Last();			
+				ShortcutTarget = VARS.Target;
+			else if (e.PropertyName == "FileLocation")
+				Title = VARS.FileLocation.Split('\\').Last();
 			else if (e.PropertyName == "InterruptKey")
-				InterruptKey = TempStorage.Instance.InterruptKey;
+				InterruptKey = VARS.InterruptKey;
+			else if (e.PropertyName == "NewKeyId")
+				NewKeyId = VARS.NewKeyId.ToString();
+			else if (e.PropertyName == "NewKeyName")
+				NewKeyName = VARS.NewKeyName;
+
 		}
 		#endregion
 
@@ -225,8 +260,8 @@ namespace InterceptionKeymapper.ViewModel
 				{
 					_shortcutButtonLostFocus = new ActionCommand(e =>
 					{
-						ShortcutKey = TempStorage.Instance.Key;
-						ShortcutTarget = TempStorage.Instance.Target;
+						ShortcutKey = ShortcutManager.Instance.KeyNumReverse[VARS.Key];
+						ShortcutTarget = VARS.Target;
 					});
 				}
 				return _shortcutButtonLostFocus;
@@ -245,10 +280,10 @@ namespace InterceptionKeymapper.ViewModel
 						if (SelectedShortcut != null)
 						{
 							ShortcutDevice = DeviceManager.Instance.DevicesByName[SelectedShortcut.Device];
-							TempStorage.Instance.Key = SelectedShortcut.Key;
-							TempStorage.Instance.Target = SelectedShortcut.Target;
-							ShortcutKey = SelectedShortcut.Key;
-							ShortcutTarget = SelectedShortcut.Target;
+							VARS.Key = SelectedShortcut.KeyId;
+							VARS.Target = SelectedShortcut.TargetString;
+							ShortcutKey = ShortcutManager.Instance.KeyNumReverse[SelectedShortcut.KeyId];
+							ShortcutTarget = SelectedShortcut.TargetString;
 							_editShortcut = SelectedShortcut;
 						}
 					});
@@ -268,12 +303,34 @@ namespace InterceptionKeymapper.ViewModel
 					{
 						if (ShortcutManager.Instance.Shortcuts.Contains(_editShortcut))
 							ShortcutManager.Instance.Shortcuts[ShortcutManager.Instance.Shortcuts.IndexOf(_editShortcut)]
-							= new Shortcut(ShortcutDevice, TempStorage.Instance.Key, TempStorage.Instance.Target);
+							= new Shortcut(ShortcutDevice, VARS.Key, VARS.TargetList);
 						else
-							ShortcutManager.Instance.Shortcuts.Add(new Shortcut(ShortcutDevice, TempStorage.Instance.Key, TempStorage.Instance.Target));
+							ShortcutManager.Instance.Shortcuts.Add(new Shortcut(ShortcutDevice, VARS.Key, VARS.TargetList));
 					});
 				}
 				return _editShortcutFlyoutCommand;
+			}
+		}
+
+		private ICommand _addKeyFlyoutCommand;
+		public ICommand AddKeyFlyoutCommand
+		{
+			get
+			{
+				if (_addKeyFlyoutCommand == null)
+					_addKeyFlyoutCommand = new ActionCommand(e => ShortcutManager.Instance.KeyNum[VARS.NewKeyName] = VARS.NewKeyId);
+				return _addKeyFlyoutCommand;
+			}
+		}
+
+		private ICommand _getKeyNumCommand;
+		public ICommand GetKeyNumCommand
+		{
+			get
+			{
+				if (_getKeyNumCommand == null)
+					_getKeyNumCommand = new ActionCommand(e => VARS.GetNewKeyNum());
+				return _getKeyNumCommand;
 			}
 		}
 
@@ -283,7 +340,7 @@ namespace InterceptionKeymapper.ViewModel
 			get
 			{
 				if (_clearShortcutKey == null)
-					_clearShortcutKey = new ActionCommand(e => { TempStorage.Instance.Key = ""; });
+					_clearShortcutKey = new ActionCommand(e => { VARS.Key = 0; });
 				return _clearShortcutKey;
 			}
 		}
@@ -294,7 +351,7 @@ namespace InterceptionKeymapper.ViewModel
 			get
 			{
 				if (_clearShortcutTarget == null)
-					_clearShortcutTarget = new ActionCommand(e => { TempStorage.Instance.Target = ""; });
+					_clearShortcutTarget = new ActionCommand(e => { VARS.Target = ""; });
 				return _clearShortcutTarget;
 			}
 		}
@@ -368,8 +425,8 @@ namespace InterceptionKeymapper.ViewModel
 				if (_settingsFlyoutCommand == null)
 					_settingsFlyoutCommand = new ActionCommand(e =>
 					{
-						TempStorage.Instance.ButtonDelay = _buttonDelay;
-						TempStorage.Instance.InterruptKey = _interruptKey;
+						VARS.ButtonDelay = _buttonDelay;
+						VARS.InterruptKey = _interruptKey;
 					});
 				return _settingsFlyoutCommand;
 			}
@@ -383,8 +440,8 @@ namespace InterceptionKeymapper.ViewModel
 				if (_settingsCommand == null)
 					_settingsCommand = new ActionCommand(e =>
 					{
-						ButtonDelay = TempStorage.Instance.ButtonDelay;
-						InterruptKey = TempStorage.Instance.InterruptKey;
+						ButtonDelay = VARS.ButtonDelay;
+						InterruptKey = VARS.InterruptKey;
 					});
 				return _settingsCommand;
 			}
@@ -396,7 +453,7 @@ namespace InterceptionKeymapper.ViewModel
 			get
 			{
 				if (_clearInterruptKeyCommand == null)
-					_clearInterruptKeyCommand = new ActionCommand(e => { TempStorage.Instance.InterruptKey = ""; });
+					_clearInterruptKeyCommand = new ActionCommand(e => { VARS.InterruptKey = ""; });
 				return _clearInterruptKeyCommand;
 			}
 		}
@@ -475,8 +532,6 @@ namespace InterceptionKeymapper.ViewModel
 			});
 		}
 		#endregion
-
-
 
 	}
 }
