@@ -10,14 +10,16 @@ namespace InterceptionKeymapper.Helpers
 	{
 		public static void SaveAllToFile(string location)
 		{
+			ShortcutManager SM = ShortcutManager.Instance;
+			DeviceManager DM = DeviceManager.Instance;
 			using (var writer = File.CreateText(location))
 			{
-				foreach (var device in DeviceManager.Instance.Devices)
+				foreach (var device in DM.Devices)
 				{
 					writer.WriteLine($"{device.Name},{device.Hwid}");
 				}
 				writer.WriteLine("");
-				foreach (var shortcut in ShortcutManager.Instance.Shortcuts)
+				foreach (var shortcut in SM.Shortcuts)
 				{
 					string x = "";
 					foreach (var key in shortcut.Target)
@@ -34,9 +36,10 @@ namespace InterceptionKeymapper.Helpers
 
 		public static void ReadAllFromFile(string location)
 		{
-			DeviceManager.Instance.Devices.Clear();
-			ShortcutManager.Instance.Shortcuts.Clear();
-			ShortcutManager x = ShortcutManager.Instance;
+			DeviceManager DM = DeviceManager.Instance;
+			ShortcutManager SM = ShortcutManager.Instance;
+			DM.Devices.Clear();
+			SM.Shortcuts.Clear();
 			using (var reader = new StreamReader(location))
 			{
 				while (!reader.EndOfStream)
@@ -45,17 +48,17 @@ namespace InterceptionKeymapper.Helpers
 					if (line == "")
 						break;
 					string[] split = line.Split(',');
-					DeviceManager.Instance.Devices.Add(new Device(split[1], split[0]));
+					DM.Devices.Add(new Device(split[1], split[0]));
 				}
-				Dictionary<string, Device> devicesByName = DeviceManager.Instance.DevicesByName;
+				Dictionary<string, Device> devicesByName = DM.DevicesByName;
 				while (!reader.EndOfStream)
 				{
 					string[] split = reader.ReadLine().Split(',');
 					ushort z;
 					if (ushort.TryParse(split[1], out z))
-						x.Shortcuts.Add(new Shortcut(split[0], ushort.Parse(split[1]), (from y in split[2].Split('+') select ushort.Parse(y)).ToList()));
+						SM.Shortcuts.Add(new Shortcut(split[0], ushort.Parse(split[1]), (from y in split[2].Split('+') select ushort.Parse(y)).ToList()));
 					else
-						x.Shortcuts.Add(new Shortcut(split[0], x.KeyNum[split[1]], (from y in split[2].Split('+') select x.KeyNum[y]).ToList()));
+						SM.Shortcuts.Add(new Shortcut(split[0], SM.KeyNum[split[1]], (from y in split[2].Split('+') select SM.KeyNum[y]).ToList()));
 				}
 			}
 		}
@@ -87,6 +90,7 @@ namespace InterceptionKeymapper.Helpers
 
 		public static void LoadKeys()
 		{
+			ShortcutManager SM = ShortcutManager.Instance;
 			if (File.Exists("keys.ini"))
 				using (var sr = new StreamReader("keys.ini"))
 				{
@@ -94,22 +98,23 @@ namespace InterceptionKeymapper.Helpers
 					while ((x = sr.ReadLine()) != null)
 					{
 						var y = x.Split('=');
-						ShortcutManager.Instance.KeyNum.Add(y[0], ushort.Parse(y[1]));
+						SM.KeyNum.Add(y[0], ushort.Parse(y[1]));
 					}
 				}
 			else
 			{
-				ShortcutManager.Instance.KeyNum = KeyHelper.KeyNum;
+				SM.KeyNum = KeyHelper.KeyNum;
 			}
 		}
 
 		public static void SaveKeys()
 		{
+			ShortcutManager SM = ShortcutManager.Instance;
 			using (var sw = new StreamWriter("keys.ini"))
 			{
-				foreach (string key in ShortcutManager.Instance.KeyNum.Keys)
+				foreach (string key in SM.KeyNum.Keys)
 				{
-					sw.WriteLine($"{key}={ShortcutManager.Instance.KeyNum[key]}");
+					sw.WriteLine($"{key}={SM.KeyNum[key]}");
 				}
 			}
 		}

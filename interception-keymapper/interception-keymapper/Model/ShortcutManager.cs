@@ -9,9 +9,10 @@ using System.Threading;
 namespace InterceptionKeymapper.Model
 {
 
-	public class ShortcutManager : Helpers.LazySingleton<ShortcutManager>
+	public class ShortcutManager : LazySingleton<ShortcutManager>
 	{
 		private static Vars VARS;
+		private static DeviceManager DM;
 		private ObservableCollection<Shortcut> _shortcuts = new ObservableCollection<Shortcut>();
 		public ObservableCollection<Shortcut> Shortcuts => _shortcuts;
 		private Thread t;
@@ -20,6 +21,7 @@ namespace InterceptionKeymapper.Model
 		static ShortcutManager()
 		{
 			VARS = Vars.Instance;
+			DM = DeviceManager.Instance;
 		}
 
 		public Dictionary<string, ushort> KeyNum
@@ -70,13 +72,13 @@ namespace InterceptionKeymapper.Model
 			List<ushort> vals = new List<ushort>();
 			foreach (var x in Shortcuts)
 			{
-				if (!DeviceManager.Instance.DevicesByName[x.Device].Active)
+				if (!DM.DevicesByName[x.Device].Active)
 					continue;
 				List<ushort> temp = x.Target;
 				vals.AddRange(x.Target);
 				for (int i = x.Target.Count(); i < 16; i++)
 					vals.Add(0);
-				hwid.Add(Marshal.StringToBSTR(DeviceManager.Instance.DevicesByName[x.Device].Hwid));
+				hwid.Add(Marshal.StringToBSTR(DM.DevicesByName[x.Device].Hwid));
 				key.Add(x.KeyId);
 			}
 			InterceptionManager.start_interception(hwid.ToArray(), key.ToArray(), vals.ToArray(), hwid.Count, VARS.ButtonDelay, KeyToShort(VARS.InterruptKey));

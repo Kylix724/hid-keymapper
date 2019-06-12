@@ -58,13 +58,14 @@ namespace InterceptionKeymapper.Model
 			get => _target;
 			set
 			{
+				ShortcutManager SM = ShortcutManager.Instance;
 				_target = value;
 				TargetString = "";
 				foreach (var x in _target)
 				{
 					if (TargetString != "")
-						TargetString = $"{TargetString}+{ShortcutManager.Instance.KeyNumReverse[x]}";
-					else TargetString = ShortcutManager.Instance.KeyNumReverse[x];
+						TargetString = $"{TargetString}+{SM.KeyNumReverse[x]}";
+					else TargetString = SM.KeyNumReverse[x];
 				}
 				OnPropertyChanged("TargetList");
 			}

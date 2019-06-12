@@ -13,6 +13,8 @@ namespace InterceptionKeymapper.ViewModel
 	public class ApplicationObservableModel : ObservableModelBase
 	{
 		private Vars VARS;
+		private ShortcutManager SM;
+		private DeviceManager DM;
 		TaskFactory taskFactory;
 		private ObservableCollection<Shortcut> _shortcuts = new ObservableCollection<Shortcut>();
 		private ObservableCollection<Device> _devices = new ObservableCollection<Device>();
@@ -23,13 +25,16 @@ namespace InterceptionKeymapper.ViewModel
 
 		public ApplicationObservableModel()
 		{
+			VARS = Vars.Instance;
+			SM = ShortcutManager.Instance;
+			DM = DeviceManager.Instance;
+
 			taskFactory = new TaskFactory(TaskScheduler.FromCurrentSynchronizationContext());
-			ShortcutManager.Instance.Shortcuts.CollectionChanged += ShortcutsCollectionChanged;
-			DeviceManager.Instance.Devices.CollectionChanged += DevicesCollectionChanged;
+			SM.Shortcuts.CollectionChanged += ShortcutsCollectionChanged;
+			DM.Devices.CollectionChanged += DevicesCollectionChanged;
 			NewDeviceHwid = "Get Device";
 			NewKeyId = "Get Key Id";
 			Title = null;
-			VARS = Vars.Instance;
 			VARS.PropertyChanged += PropertyChangedHandler;
 		}
 
@@ -185,7 +190,7 @@ namespace InterceptionKeymapper.ViewModel
 			if (e.PropertyName == "DummyKey")
 				try
 				{
-					ShortcutKey = ShortcutManager.Instance.KeyNumReverse[VARS.Key];
+					ShortcutKey = SM.KeyNumReverse[VARS.Key];
 				}
 				catch { throw; }
 			else if (e.PropertyName == "DummyTarget")
@@ -212,7 +217,7 @@ namespace InterceptionKeymapper.ViewModel
 				{
 					_addShortcutCommand = new ActionCommand(e =>
 					{
-						ShortcutManager.Instance.AddShortcut(ShortcutDevice);
+						SM.AddShortcut(ShortcutDevice);
 					});
 				}
 				return _addShortcutCommand;
@@ -228,7 +233,7 @@ namespace InterceptionKeymapper.ViewModel
 				{
 					_getDeviceCommand = new ActionCommand(e =>
 					{
-						NewDeviceHwid = DeviceManager.Instance.GetDevice();
+						NewDeviceHwid = DM.GetDevice();
 					});
 				}
 				return _getDeviceCommand;
@@ -244,7 +249,7 @@ namespace InterceptionKeymapper.ViewModel
 				{
 					_addDeviceCommand = new ActionCommand(e =>
 					{
-						DeviceManager.Instance.Devices.Add(new Device(NewDeviceHwid, NewDeviceName));
+						DM.Devices.Add(new Device(NewDeviceHwid, NewDeviceName));
 					});
 				}
 				return _addDeviceCommand;
@@ -260,7 +265,7 @@ namespace InterceptionKeymapper.ViewModel
 				{
 					_shortcutButtonLostFocus = new ActionCommand(e =>
 					{
-						ShortcutKey = ShortcutManager.Instance.KeyNumReverse[VARS.Key];
+						ShortcutKey = SM.KeyNumReverse[VARS.Key];
 						ShortcutTarget = VARS.Target;
 					});
 				}
@@ -279,10 +284,10 @@ namespace InterceptionKeymapper.ViewModel
 					{
 						if (SelectedShortcut != null)
 						{
-							ShortcutDevice = DeviceManager.Instance.DevicesByName[SelectedShortcut.Device];
+							ShortcutDevice = DM.DevicesByName[SelectedShortcut.Device];
 							VARS.Key = SelectedShortcut.KeyId;
 							VARS.Target = SelectedShortcut.TargetString;
-							ShortcutKey = ShortcutManager.Instance.KeyNumReverse[SelectedShortcut.KeyId];
+							ShortcutKey = SM.KeyNumReverse[SelectedShortcut.KeyId];
 							ShortcutTarget = SelectedShortcut.TargetString;
 							_editShortcut = SelectedShortcut;
 						}
@@ -301,11 +306,11 @@ namespace InterceptionKeymapper.ViewModel
 				{
 					_editShortcutFlyoutCommand = new ActionCommand(e =>
 					{
-						if (ShortcutManager.Instance.Shortcuts.Contains(_editShortcut))
-							ShortcutManager.Instance.Shortcuts[ShortcutManager.Instance.Shortcuts.IndexOf(_editShortcut)]
+						if (SM.Shortcuts.Contains(_editShortcut))
+							SM.Shortcuts[SM.Shortcuts.IndexOf(_editShortcut)]
 							= new Shortcut(ShortcutDevice, VARS.Key, VARS.TargetList);
 						else
-							ShortcutManager.Instance.Shortcuts.Add(new Shortcut(ShortcutDevice, VARS.Key, VARS.TargetList));
+							SM.Shortcuts.Add(new Shortcut(ShortcutDevice, VARS.Key, VARS.TargetList));
 					});
 				}
 				return _editShortcutFlyoutCommand;
@@ -318,7 +323,7 @@ namespace InterceptionKeymapper.ViewModel
 			get
 			{
 				if (_addKeyFlyoutCommand == null)
-					_addKeyFlyoutCommand = new ActionCommand(e => ShortcutManager.Instance.KeyNum[VARS.NewKeyName] = VARS.NewKeyId);
+					_addKeyFlyoutCommand = new ActionCommand(e => SM.KeyNum[VARS.NewKeyName] = VARS.NewKeyId);
 				return _addKeyFlyoutCommand;
 			}
 		}
@@ -362,7 +367,7 @@ namespace InterceptionKeymapper.ViewModel
 			get
 			{
 				if (_removeShortcutCommand == null)
-					_removeShortcutCommand = new ActionCommand(e => { ShortcutManager.Instance.Shortcuts.Remove(SelectedShortcut); });
+					_removeShortcutCommand = new ActionCommand(e => { SM.Shortcuts.Remove(SelectedShortcut); });
 				return _removeShortcutCommand;
 			}
 		}
@@ -394,7 +399,7 @@ namespace InterceptionKeymapper.ViewModel
 				if (_removeDeviceCommand == null)
 					_removeDeviceCommand = new ActionCommand(e =>
 					{
-						DeviceManager.Instance.Devices.Remove(SelectedDevice);
+						DM.Devices.Remove(SelectedDevice);
 					});
 				return _removeDeviceCommand;
 			}
@@ -408,10 +413,10 @@ namespace InterceptionKeymapper.ViewModel
 				if (_editDeviceFlyoutCommand == null)
 					_editDeviceFlyoutCommand = new ActionCommand(e =>
 					{
-						if (DeviceManager.Instance.Devices.Contains(_editDevice))
-							DeviceManager.Instance.Devices[DeviceManager.Instance.Devices.IndexOf(_editDevice)] = new Device(NewDeviceHwid, NewDeviceName);
+						if (DM.Devices.Contains(_editDevice))
+							DM.Devices[DM.Devices.IndexOf(_editDevice)] = new Device(NewDeviceHwid, NewDeviceName);
 						else
-							DeviceManager.Instance.Devices.Add(new Device(NewDeviceHwid, NewDeviceName));
+							DM.Devices.Add(new Device(NewDeviceHwid, NewDeviceName));
 					});
 				return _editDeviceFlyoutCommand;
 			}

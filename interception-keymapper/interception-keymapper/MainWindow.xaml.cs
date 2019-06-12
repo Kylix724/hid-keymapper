@@ -14,11 +14,15 @@ namespace InterceptionKeymapper
 	public partial class MainWindow : MetroWindow
 	{
 		private Vars VARS;
+		private ShortcutManager SM;
+		private DeviceManager DM;
 		public MainWindow()
 		{
 			InitializeComponent();
 			Loader.OnLaunch();
 			VARS = Vars.Instance;
+			SM = ShortcutManager.Instance;
+			DM = DeviceManager.Instance;
 		}
 
 		public static object AiLoggingService { get; private set; }
@@ -45,8 +49,8 @@ namespace InterceptionKeymapper
 
 		private void MenuNew_Click(object sender, RoutedEventArgs e)
 		{
-			ShortcutManager.Instance.Shortcuts.Clear();
-			DeviceManager.Instance.Devices.Clear();
+			SM.Shortcuts.Clear();
+			DM.Devices.Clear();
 		}
 
 		private void AddDevice_Click(object sender, RoutedEventArgs e)
@@ -121,8 +125,8 @@ namespace InterceptionKeymapper
 			if (e.Key == Key.Enter && IsNumpadEnterKey(e))
 				VARS.Key = 1028;
 			else if (e.Key == Key.System)
-				VARS.Key = ShortcutManager.Instance.KeyNum[e.SystemKey.ToString()];
-			else VARS.Key = ShortcutManager.Instance.KeyNum[e.Key.ToString()];
+				VARS.Key = SM.KeyNum[e.SystemKey.ToString()];
+			else VARS.Key = SM.KeyNum[e.Key.ToString()];
 		}
 
 		private void TargetBox_KeyDown(object sender, KeyEventArgs e)
@@ -169,7 +173,7 @@ namespace InterceptionKeymapper
 
 		private void StartInterception_Click(object sender, RoutedEventArgs e)
 		{
-			ShortcutManager.Instance.StartInterception();
+			SM.StartInterception();
 		}
 
 		private void GetDevice_PreviewKeyDown(object sender, KeyEventArgs e)

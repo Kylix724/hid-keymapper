@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using InterceptionKeymapper.Helpers;
 
 namespace InterceptionKeymapper.Model
 {
 
-	public class DeviceManager : Helpers.LazySingleton<DeviceManager>
+	public class DeviceManager : LazySingleton<DeviceManager>
 	{
 		private ObservableCollection<Device> _activeDevices = new ObservableCollection<Device>();
 		public ObservableCollection<Device> ActiveDevices => _activeDevices;
