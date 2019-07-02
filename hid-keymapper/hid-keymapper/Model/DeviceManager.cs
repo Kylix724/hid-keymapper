@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using InterceptionKeymapper.Helpers;
+using HidKeymapper.Helpers;
 
-namespace InterceptionKeymapper.Model
+namespace HidKeymapper.Model
 {
 
 	public class DeviceManager : LazySingleton<DeviceManager>

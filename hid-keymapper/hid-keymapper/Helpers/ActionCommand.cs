@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace InterceptionKeymapper.Helpers
+namespace HidKeymapper.Helpers
 {
 	public class ActionCommand : ICommand
 

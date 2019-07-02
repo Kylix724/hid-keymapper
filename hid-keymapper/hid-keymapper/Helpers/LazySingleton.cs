@@ -1,4 +1,4 @@
-﻿namespace InterceptionKeymapper.Helpers
+﻿namespace HidKeymapper.Helpers
 {
 	public class LazySingleton<T> where T : new()
 	{

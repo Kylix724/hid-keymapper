@@ -1,12 +1,12 @@
-﻿using InterceptionKeymapper.Helpers;
-using InterceptionKeymapper.Model;
+﻿using HidKeymapper.Helpers;
+using HidKeymapper.Model;
 using MahApps.Metro.Controls;
 using Microsoft.Win32;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
 
-namespace InterceptionKeymapper
+namespace HidKeymapper
 {
 	/// <summary>
 	/// Interaction logic for MainWindow.xaml

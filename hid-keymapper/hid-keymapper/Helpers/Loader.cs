@@ -1,10 +1,10 @@
-﻿using InterceptionKeymapper.Model;
+﻿using HidKeymapper.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace InterceptionKeymapper.Helpers
+namespace HidKeymapper.Helpers
 {
 	class Loader
 	{

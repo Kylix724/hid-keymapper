@@ -1,5 +1,5 @@
-﻿using InterceptionKeymapper.Helpers;
-using InterceptionKeymapper.Model;
+﻿using HidKeymapper.Helpers;
+using HidKeymapper.Model;
 using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace InterceptionKeymapper.ViewModel
+namespace HidKeymapper.ViewModel
 {
 	public class ApplicationObservableModel : ObservableModelBase
 	{

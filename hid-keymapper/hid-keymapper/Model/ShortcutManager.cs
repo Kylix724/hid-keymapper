@@ -1,4 +1,4 @@
-﻿using InterceptionKeymapper.Helpers;
+﻿using HidKeymapper.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -6,7 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 
-namespace InterceptionKeymapper.Model
+namespace HidKeymapper.Model
 {
 
 	public class ShortcutManager : LazySingleton<ShortcutManager>

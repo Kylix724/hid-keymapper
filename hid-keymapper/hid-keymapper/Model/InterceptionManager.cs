@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace InterceptionKeymapper.Model
+namespace HidKeymapper.Model
 {
 	public static class InterceptionManager
 	{

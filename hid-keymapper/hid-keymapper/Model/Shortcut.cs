@@ -1,7 +1,7 @@
-﻿using InterceptionKeymapper.Helpers;
+﻿using HidKeymapper.Helpers;
 using System.Collections.Generic;
 
-namespace InterceptionKeymapper.Model
+namespace HidKeymapper.Model
 {
 	public class Shortcut : ObservableModelBase
 	{

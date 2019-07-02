@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace InterceptionKeymapper.Helpers
+namespace HidKeymapper.Helpers
 {
 	/// <summary>
 	/// https://stackoverflow.com/a/629450

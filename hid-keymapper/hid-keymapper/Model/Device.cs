@@ -1,6 +1,6 @@
-﻿using InterceptionKeymapper.Helpers;
+﻿using HidKeymapper.Helpers;
 
-namespace InterceptionKeymapper.Model
+namespace HidKeymapper.Model
 {
 	public class Device : ObservableModelBase
 	{

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace InterceptionKeymapper.Helpers
+namespace HidKeymapper.Helpers
 {
 	/*
      * Standard-Basisklasse für ViewModels

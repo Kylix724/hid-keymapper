@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace InterceptionKeymapper.Helpers
+namespace HidKeymapper.Helpers
 {
 	public static class KeyHelper
 	{

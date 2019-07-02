@@ -1,8 +1,8 @@
-﻿using InterceptionKeymapper.Model;
+﻿using HidKeymapper.Model;
 using System;
 using System.Collections.Generic;
 
-namespace InterceptionKeymapper.Helpers
+namespace HidKeymapper.Helpers
 {
 	class Vars : ObservableModelBase
 	{

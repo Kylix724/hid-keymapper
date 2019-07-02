@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace InterceptionKeymapper
+namespace HidKeymapper
 {
 	/// <summary>
 	/// Interaction logic for App.xaml
