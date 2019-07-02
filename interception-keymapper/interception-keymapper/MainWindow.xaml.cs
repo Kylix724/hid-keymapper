@@ -29,8 +29,10 @@ namespace InterceptionKeymapper
 
 		private void MenuSave_Click(object sender, RoutedEventArgs e)
 		{
-			SaveFileDialog saveFileDialog = new SaveFileDialog();
-			saveFileDialog.Filter = "Csv files (*.csv)|*.csv|All files (*.*)|*.*";
+			SaveFileDialog saveFileDialog = new SaveFileDialog
+			{
+				Filter = "Csv files (*.csv)|*.csv|All files (*.*)|*.*"
+			};
 			if (saveFileDialog.ShowDialog() == true)
 			{
 				Loader.SaveAllToFile(saveFileDialog.FileName);
@@ -39,8 +41,10 @@ namespace InterceptionKeymapper
 
 		private void MenuOpen_Click(object sender, RoutedEventArgs e)
 		{
-			OpenFileDialog openFileDialog = new OpenFileDialog();
-			openFileDialog.Filter = "Csv files (*.csv)|*.csv|All files (*.*)|*.*";
+			OpenFileDialog openFileDialog = new OpenFileDialog
+			{
+				Filter = "Csv files (*.csv)|*.csv|All files (*.*)|*.*"
+			};
 			if (openFileDialog.ShowDialog() == true)
 			{
 				Loader.ReadAllFromFile(openFileDialog.FileName);
@@ -125,8 +129,8 @@ namespace InterceptionKeymapper
 			if (e.Key == Key.Enter && IsNumpadEnterKey(e))
 				VARS.Key = 1028;
 			else if (e.Key == Key.System)
-				VARS.Key = SM.KeyNum[e.SystemKey.ToString()];
-			else VARS.Key = SM.KeyNum[e.Key.ToString()];
+				VARS.Key = SM.KeyNum[e.SystemKey.ToString().ToUpper()];
+			else VARS.Key = SM.KeyNum[e.Key.ToString().ToUpper()];
 		}
 
 		private void TargetBox_KeyDown(object sender, KeyEventArgs e)

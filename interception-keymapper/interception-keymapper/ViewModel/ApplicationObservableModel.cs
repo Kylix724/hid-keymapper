@@ -151,8 +151,7 @@ namespace InterceptionKeymapper.ViewModel
 			get => _buttonDelay;
 			set
 			{
-				int x;
-				_buttonDelay = int.TryParse(value.ToString(), out x) ? value : 0;
+				_buttonDelay = int.TryParse(value.ToString(), out _) ? value : 0;
 				OnPropertyChanged("ButtonDelay");
 			}
 		}
@@ -163,8 +162,7 @@ namespace InterceptionKeymapper.ViewModel
 			get => _newKeyId.ToString();
 			set
 			{
-				ushort x;
-				if (ushort.TryParse(value.ToString(), out x))
+				if (ushort.TryParse(value.ToString(), out ushort x))
 					_newKeyId = x;
 				else
 					_newKeyId = 0;
@@ -192,7 +190,7 @@ namespace InterceptionKeymapper.ViewModel
 				{
 					ShortcutKey = SM.KeyNumReverse[VARS.Key];
 				}
-				catch { throw; }
+				catch { }
 			else if (e.PropertyName == "DummyTarget")
 				ShortcutTarget = VARS.Target;
 			else if (e.PropertyName == "FileLocation")

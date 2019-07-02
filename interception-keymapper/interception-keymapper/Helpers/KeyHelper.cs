@@ -4,6 +4,9 @@ namespace InterceptionKeymapper.Helpers
 {
 	public static class KeyHelper
 	{
+		/// <summary>
+		/// The default KeyNum Dictionary, only used when no keys.ini is found
+		/// </summary>
 		public static Dictionary<string, ushort> KeyNum = new Dictionary<string, ushort>()
 		{
 			["ESCAPE"] = 1,

@@ -54,11 +54,20 @@ namespace InterceptionKeymapper.Helpers
 				while (!reader.EndOfStream)
 				{
 					string[] split = reader.ReadLine().Split(',');
-					ushort z;
-					if (ushort.TryParse(split[1], out z))
-						SM.Shortcuts.Add(new Shortcut(split[0], ushort.Parse(split[1]), (from y in split[2].Split('+') select ushort.Parse(y)).ToList()));
-					else
-						SM.Shortcuts.Add(new Shortcut(split[0], SM.KeyNum[split[1]], (from y in split[2].Split('+') select SM.KeyNum[y]).ToList()));
+					try
+					{
+						if (ushort.TryParse(split[1], out ushort z))
+							SM.Shortcuts.Add(new Shortcut(split[0], ushort.Parse(split[1]), (from y in split[2].Split('+') select ushort.Parse(y)).ToList()));
+						else
+							SM.Shortcuts.Add(new Shortcut(split[0], SM.KeyNum[split[1]], (from y in split[2].Split('+') select SM.KeyNum[y]).ToList()));
+					}
+					catch (KeyNotFoundException e)
+					{
+						Console.Error.Write("File incompatible with key library");
+						Console.Error.Write(e.StackTrace);
+						return;
+					}
+
 				}
 			}
 		}
