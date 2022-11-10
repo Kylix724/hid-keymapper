@@ -1,3 +1,5 @@
+This project has been abandoned and should at best be considered barely functional
+
 # HidKeymapper
 A keyboard remapping tool, using Interception by oblitum.
 
